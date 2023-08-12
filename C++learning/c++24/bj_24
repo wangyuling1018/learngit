@@ -1,0 +1,74 @@
+
+基本链表容器
+
+链表判空
+    判空链表
+    bool empty(){
+    return m_head==NULL && m_tail==NULL;
+
+首/尾部增硎节点
+    ●添加链表头节点
+        void push_front(T const&data){
+        m_head = new node(NULL,data,m_head); if(m_head->m_next)
+        m_head->m_next->m_prev = m_head; else
+        m_tail = m_head;
+    ●删除链表头节点
+        void pop. front(){
+        if(empty()
+        return;
+        node* pnode = m_ head->m. next; delete(m_ head);
+        if(pnode)
+        pnode->m prev = NULL;
+        else
+        m_ tail= NULL;
+        m_ head = pnode;
+    添加链表尾节点
+        void push_back(Tconst& data){
+        m_tail = new node(m_tail,data,NULL); if(m_tail->m_prev)
+        m_tail->m_prev->m_next =m_tail; else
+        m_head = m_tail;
+    删除链表尾节点
+        void pop_back(){
+        if(empty())
+        return;
+        node* pnode = m_tail->m_prev; delete(m_tail);
+        if(pnode)
+        pnode->m_next= NULL; else
+        m_head = NULL;
+        m_tail = pnode;
+        }
+
+获取首/尾元素
+    获取头节点数据。
+        T& front(){
+        if(empty())
+        throw underflow_error("front():null node"); return m head->m_data;
+        }
+        T const& front()const{
+        return const_cast<list*>(this)->front();
+    获取尾节点数据。
+        T& back(){
+        if(empty())
+        throw underflow_error("back():null node"); return m_tail->m_data;
+        Tconst& back()const{
+        returnconst_cast<list*>(this)->back();
+    清空/判空链表/链表大小
+        void clear(){
+        while(!empty()) pop_back();
+
+        size t size({
+        size_ ti = O;
+        for(node* pnode=m. head; pnode; pnode= pnode->m. next) i++;
+        return i;
+    缺省构造/拷贝构造/析构
+        list():m_head(NULL),m_tail(NULL){}
+        list(list const& that):m_head(NULL),m_tail(NULL){
+        for(node* pnode=that.m_head; pnode; pnode=pnode->m_next) push_back(pnode->m_data);
+        }
+        ~list(){
+        clear();
+    输出流操作符重载
+        ostream&operator<<(ostream&os, list const& l){
+        for(node* pnode=l.m_head; pnode; pnode=pnode->m_next) os << pnode->m_data <<''
+        return os;
+

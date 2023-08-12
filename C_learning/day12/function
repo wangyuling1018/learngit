@@ -1,0 +1,100 @@
+C语言函数相关内容(核心中的核心)
+1.明确：任何C语言程序都是由两部分组成：一堆的变量(包括数组)和一堆的函数
+              前者负责分配内存,后者负责操作访问内存
+2.函数的概念：就是一堆语句的组合,一次写好,到处使用！printf
+        本质目的：减少开发的工作量,提高代码的可维护性!
+3.问：为何掌握函数这个技术呢？
+  答：举例子
+  需求：实现两个正数相加
+  张三同学的代码：
+  vim add.c
+  int main(void) {
+    int a, b, sum = 0;
+    scanf("%d%d", &a, &b);
+    if(a < 0 || b <0) {
+        printf("请输入两个正数.\n");
+        return -1;
+    }
+    sum = a + b;
+    printf("sum = %d\n", sum);
+    return 0;
+  }
+  李四同学代码：
+    vim add.c
+    int main(void) {
+    int a = 10, b = 20, sum = 0;
+    scanf("%d%d", &a, &b);
+    if(a < 0 || b <0) {
+        printf("请输入两个正数.\n");
+        return -1;
+    }
+    sum = a + b;
+    printf("sum = %d\n", sum);
+    return 0;
+  }
+  其余学生：
+  vim add3.c,....add250.c ...
+  结论：如果完成这些功能,所有人的代码很多地方都是重复的,写了一遍又一遍,无形增加开发的工作量和代码体积
+  期望：只需将重复的代码写一次即可,其他人无需编写拿来直接使用即可,类似：大神写好的printf,scanf一样
+        极大减少开发的工作量
+  问：如何实现？
+  答：采用大名鼎鼎的函数这个技术来解决
+  编写一个add函数
+  vim add.c
+  void add(int x, int y) {
+    if(x < 0 || y <0) {
+        printf("请输入两个正数.\n");
+        return;
+    }
+    sum = x + y;
+    printf("sum = %d\n", sum);
+  }
+ 张三同学的代码：
+  vim add.c
+  int main(void) {
+    int a, b;
+    scanf("%d%d", &a, &b);
+    add(a, b);//调用编写的add函数并且给add函数传递两个数值也就是a,b的值
+    return 0;
+  }
+  李四同学代码：
+    vim add.c
+    int main(void) {
+    int a = 10, b = 20, sum = 0
+    add(a, b);//调用编写的add函数并且给add函数传递两个数值也就是a,b的值
+    return 0;
+  }
+  结论：如果将来要想实现这个需求,只需调用编写的add函数即可,无需非常辛苦的编写代码
+        大大提高了开发的效率,提高代码的可维护性,大大降低了开发的工作量
+
+需求：利用递归函数实现打印：1 2 3
+分析：
+    #include <stdio.h>
+    void print(int max) {
+        //3.最后添加递归退出的条件
+        if(max == 1) {
+            printf("1 ");
+            return;
+        }
+        print(max-1);//2.然后发现打印2和打印3所作的工作都是一样的，只需调用自己重复打印即可
+        printf("%d ", max);//1.首先要明确此递归函数最终要完成一个打印数字的功能
+        return;
+    }
+    int main(void) {
+        int max = 3;
+        print(max);
+        printf("\n");
+        return 0;
+    }
+
+
+
+
+
+
+
+
+
+    
+    
+    

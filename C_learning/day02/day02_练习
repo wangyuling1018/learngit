@@ -1,0 +1,214 @@
+
+计算机基础
+Linux - 发行版本 - 一切皆文件
+目录
+----------------
+1.Linux命令
+clear
+pwd
+cd
+ls
+touch
+mkdir
+---------
+rm - remove - 移走 - 删除 目录/ 文件
+    rm 文件名
+    rm 目录名 -fr
+
+    touch a.txt
+    rm a.txt
+    rm 2222 -fr
+    rm a.txt -fr //ok
+cp - copy - couple - 复制/拷贝
+    cp 路径/源文件 路径/目标文件 -fr (-fr操作的是目录, 普通文件可以不加-fr)
+    cd /home/tarena
+    mkdir test
+    touch hello.c
+    cp /home/tarena/hello.c ./test/ -fr
+            将hello.c拷贝到test目录中, 新文件名称还是hello.c
+    cp /home/tarena/hello.c ./test/hello2.c
+            将hello.c拷贝到test目录中, 新文件名称还是hello2.c
+    ls test
+
+    cp ./test ./test2 -fr
+            将test目录拷贝成test2目录
+    rm test test2 -fr
+
+mv - move - 移动 - 重命名
+    cd /home/tarena
+    mkdir test test1
+    touch hello.c
+
+    //mv的第二个参数如果是存在目录, mv表示移动的意思
+    mv hello.c ./test
+    mv test ./test1 //将test目录移动到test1里边
+    mv hello.c hello2.c
+    mv test1 test3
+练习:
+    1.进入到/home/tarena目录中
+    cd /home/tarena
+    cd ~
+    cd
+    2.查询当前所在路径
+    pwd
+    3.创建2208目录
+    mkdir 2208
+    4.在2208目录下创建1.txt文件
+    touch 2208/1.txt
+    5.将1.txt拷贝一份为2.txt到2208目录下
+    cp 2208/1.txt 2208/2.txt -fr
+    6.以绝对路径的方式详细查看1.txt文件内容
+    ls /home/tarena/2208/1.txt -l
+    7.将2.txt删除
+    rm 2208/2.txt
+    8.将2208目录删除
+    rm 2208 -fr
+    rm -fr 2208
+
+force - 强制
+recursion - 递归
+
+cat - 查看
+    cat 文件名
+echo
+    echo 内容 > 文件名
+        将文件清空, 将内容写入到文件中
+        echo hello > a.txt
+    echo 内容 >> 文件名
+        将内容写到下一行, 不清空
+        echo world >> a.txt
+
+-----------------
+find - 寻找某个文件
+    语法格式 :
+        find 路径 -name 要查找的文件名
+        find /usr -name stdio.h
+            在/usr目录下去寻找名为stdio.h的文件
+            在/usr目录以及其子目录下去寻找stdio.h的文件
+        find /usr -user tarena -group tarena -name hello.c
+grep - 根据指定信息从文件内容中搜索
+    grep -nR "关键字" 路径
+        grep -nR "bbb" /home/tarena
+            在/home/tarena目录下找哪些文件中有bbb
+tar - 压缩和解压缩
+    压缩 :
+        tar -jcvf 压缩包.tar.bz2 目录/文件
+        tar -zcvf 压缩包.tar.gz 目录/文件
+    接压缩:
+        tar -xvf xxx.tar.bz2/gz
+
+    mkdir tartest
+    cd tartest
+    touch hello.c
+    echo lajdklfa >> hello.c
+    ehco hello >> hello.c
+    cd ~
+
+    tar -jcvf 1.tar.bz2 tartest
+    tar -zcvf 2.tar.gz tartest
+
+    tar -xvf 1.tar.bz2 / 2.tar.gz
+
+--->女朋友--->一个人
+
+2.vim编辑器 - 写程序
+    麻烦 - 方便
+    Linux 最常用的C编辑器
+    vscode
+    sublime
+    eclipse - java
+
+2.1.vim简单使用
+    进入到终端
+
+2.2.vim详细介绍
+    cd
+    cp /usr/include/stdio.h .
+    vim stdio.h
+
+一般模式:
+    shift + 4 -> 行尾
+    shift + 6 -> 行首
+
+复制粘贴剪切删除
+    shift + v -> 选中一行 + 上下箭头 -> 选中多行
+    y - 将选中内容复制到粘贴板上
+    d - 将选中内容剪切到粘贴板上
+    p - 将粘贴板上内容粘贴到光标所在行的下一行
+    d - 将选中内容删除
+    x -
+
+:23，30 co 34  -将23行到30行中内容复制到34行的下一行的位置
+
+/word  - 查找
+/nohl - 停止查找
+
+命令行模式:
+:%s/oldword/newword/g  整个文件做替换
+
+:vs 文件名 - 实现左右分屏, 左右两个屏幕上同时编辑两个不同的文件
+屏幕之间的切换 - ctrl + ww - 一般模式
+:wqall - 保存退出所有文件
+以后写代码:两个屏幕写代码
+
+练习:
+    使用vim同时编辑3个不同的文件:1.txt 2.txt 3.txt, 分别写入不同的内容保存退出
+
+练习:
+    1.拷贝/etc/passwd到主目录
+    cd ~
+    cp /etc/passwd .
+    2.打开主目录下的passwd
+    vim passwd
+    3.快速移动到文件第十行
+    10G
+    4.将第10行开始向下的5行复制一份
+    5yy
+    shift + v -> 向下移动5行 -> y
+    5.将复制的内容粘贴到文件末尾
+    G
+    p
+    6.进入到编辑模式, 在文件末尾添加hello the new day
+    i
+    hello the new day
+    7.将文件中所有的home替换为2208
+    :%s/home/2208/g
+    8.迅速回到行首
+    1G  / gg
+    9.保存退出
+    :wq
+--------------------------
+3.第一个C程序
+
+C语言 - 编程语言
+面向过程的语言
+
+C语言绝大多数记录在.c为后缀的文件中 - 源文件
+以.h为后缀的文件 - 头文件
+
+不要用中文标点 - 英文标点
+
+编写人生第一个C语言程序
+  实验步骤：
+  mkdir -p /home/tarena/stdc/day03
+  cd /home/tarena/stdc/day03
+  vim hello.c 添加如下内容
+  /*
+    创建时间：2021-6-4,21:12:00
+    目的：C语言演示
+   */
+   //这是我的第一个C语言程序
+   #include <stdio.h>
+   int main(void) {
+    printf("hello,world\n");
+    return 0;
+   }
+   保存退出，继续执行以下命令
+   gcc hello.c
+   ls -l
+    a.out(新生成的可执行文件(x权限))
+   ./a.out 运行当前目录下的a.out第一个C语言程序，观察屏幕上的打印信息
+
+
+
+账号 : 明天 - 班主任 / 咨询 - 是不是正式账号?

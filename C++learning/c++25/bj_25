@@ -1,0 +1,140 @@
+
+迭代器原理
+迭代器概念
+    ●迭代器就是一个类(迭代类)对象。
+    ●通过对这个对象进行操作(例如++/--)可以对链表容器进行某种程度(全局或局部)的遍历。
+    ●这样可以使用户不必关心链表容器的内部结构。
+
+迭代类分类
+    ●正向非常迭代类 iterator
+    ●正向常迭代类 const_iterator
+    ●反向非常迭代类 reverse_iterator
+    ●反向常迭代类  const_reverse_iterator
+   
+笔记：
+    正向：迭代器的m_start(开始指向)指向链表的头节点，m_end(终止指向)指向链表的尾节点
+               ++操作指向m_cur(当前指向)的下一个节点(m_next)，--操作指向m_cur(当前指向)的上一个节点(m_prev)
+
+    反向：迭代器的m_start(开始指向)指向链表的尾节点，m_end(终止指向)指向链表的头节点
+               ++操作指向m_cur(当前指向)的上一个节点(m_prev)，--操作指向m_cur(当前指向)的下一个节点(m_next)
+
+     非常：可以对目标进行增删改操作
+
+     常： 不可以对目标进行增删改操作
+
+迭代器实现
+正向非常迭代类
+    正向非常迭代类
+        class iterator{
+        public:
+        iterator(node*start,node*cur,node*end):
+        m_start(start),m_cur(cur),m_end(end){} T& operator*()
+        iterator& operator++()
+        iterator& operator--()
+        bool operator==(iterator const& that)const{ bool operator!=(iterator const& that)const {
+        private:
+        node* m_start; node*m_cur; node* m_end; };
+    正向非常迭代器
+        ●起始迭代器
+            iterator begin(){
+            return iterator(m head,m head,m tail);
+            )
+        ●终止迭代器
+            iterator end(){
+            return iterator(m head,NULL,m tail);
+
+        ●迭代器指向位置添加节点
+            void insert(iterator const& loc, T const& data){
+            if(loc==end()){
+            push_back(data);
+            }else{
+            node* pnode =new node(loc.m_cur->m_prev,data,loc.m_cur); if(pnode->m_prev)
+            pnode->m_prev->m_next = pnode;
+            else
+            m_head = pnode;
+            pnode->m_next->m_prev = pnode; j)
+        删除迭代器指向的节点
+            void erase(iterator const& loc){
+            if(loc==end())
+            throw underflow_error("null node"); node* pdel =loc.m_cur;
+            node*pnext =loc.m_cur->m_next; if(pdel->m_prev)
+            pdel->m_prev->m_next =pdel->m_next;
+
+        删除迭代器指向的节点
+            else
+                m head = pdel->m next;
+                if(pdel->m next)
+                pdel->m_ next->m_ .prev = pdel-> m_ prev; else
+                m tail = pdel-> m prev;
+                delete pdel;
+
+ 
+正向常迭代类
+    class const iterator{
+    public:
+    const_iterator(iterator const&it):m_it(it){} T const&operator*()
+    const_iterator& operator++() {
+    const_iterator& operator--() {
+    }
+    bool operator==(const_iterator const& that)const{ bool operator!=(const_iterator const& that)const { private:
+    }
+    }
+    iterator m it;
+    };
+正向常迭代器
+    起始迭代器
+        const_iterator begin()const{
+        return iterator(m_head,m_head,m_tail);
+    终止迭代器
+        const iterator end(const{
+        return iterator(m head,NULL,m tail);
+        )
+
+查找/排序功能
+    查找功能
+        template<class IT,class T>ITfind(ITconst& begin, IT const& end, T const& data){ for(lT it=begin; it!=end; ++it){
+        if(*it==data)
+        return it;
+        return end; }
+    利用“<"实现排序
+        template <class IT> void sort(lT const& begin, IT const& end){ IT p = begin; IT last = end; --last,
+        for(IT i=begin, j=last; i!=j; ){
+        while(i!=p && *i<*p)
+        ++I;
+        if(i!=p){
+        swap(*i,*p);
+        p=i;
+        
+        while(j!=p&&*p<*j)
+        -j;
+        if(j!=p){
+        swap(*p,*j);
+        p = j;
+        递归代码;//见下页PPT
+            
+        IT it= begin; ++it;
+        if(p!=begin &&p!=it) sort(begin,p);
+        it=p;
+        ++it;
+        if(it!=end && it!=last) sort(it,end);
+    利用“比较器”实现排序
+        template<class IT,class CMP>void sort(IT const& begin, IT const& end, CMPcmp){ IT p = begin; IT last = end; --last;
+        for(lT i=begin,j=last; i!=j; ){
+        while(i!=p &&cmp(*i,*p))
+        ++1
+        if(i!=p){
+        swap(*i,*p);
+        p = i;
+        while(j!=p&&cmp(*p,*j)) -j;
+        if(j!=p){
+        swap(*p,*j);
+        p = j;
+        递归代码;//见下页PPT1Tedu.cn
+            
+        IT it = begin;
+        ++ it;
+        if(p!=begin 8& p!=it)
+        sort(begin,p,cmp); it=pi
+        ++it;
+        if(it!=end && it!=last)
+        sort(it,end,cmp);

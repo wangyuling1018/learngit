@@ -1,0 +1,50 @@
+
+QListWidget和QToolButton
+
+QListWidget
+    Qt中用于项(Item)处理的组件有两类
+        - Item Views
+            QListView
+            QTableView
+            QTreeView
+        - Item Widgets
+            QListWidget
+            QTableWidget
+            QTreeWidget
+    QListWidget提供一个基于项的列表控件
+    常用函数
+        - 添加项
+            void addltem(const QString &label) void addltem(QListWidgetltem *item) void addItems(const QStringList &labels)
+        - 插入项
+            void insertItem(int row, QListWidgetltem *item)
+            void insertltem(int row,const QString &label)
+            Void insertltems(int row, const QStringList &labels)
+        - 删除项
+            QListWidgetltem * takeltem(int row)
+        - 获取项
+            QListWidgetltem * item(int row) const
+            QListWidgetltem * itemAt(const QPoint &p) const
+            QListWidgetltem * itemAt(int x, int y) const
+    常用信号
+        void currentltemChanged(QListWidgetltem *current,QListWidgetltem *previous)
+        void currentRowChanged(int currentRow)
+    QListWidgetltem：QListWidget中的一个项
+
+其它控件
+    QToolButton
+    QToolBox
+    QTabWidget
+    QSplitter
+
+QListWidget和QToolButton：完成如图所示界面和功能
+    实现功能
+        使用QTabWidget设计多页界面
+        使用QToolBox设计多组工具箱
+        使用分隔条(QSplitter) 设计可以左右分割的界面
+        创建Actions,用Actions设计主工具栏，用Action关联QToolButton按钮。
+        使用QListWidget,创建和添加项，为项设置图标和复选框,遍历列表进行选择
+        QListWidget的主要信号currentltemChanged()的功能，编写响应槽函数。
+        为QListWidget控件创建自定义快捷菜单
+    界面设计
+
+

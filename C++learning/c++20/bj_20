@@ -1,0 +1,77 @@
+
+右值引用
+左值和右值
+    -可以“取”地址的值就是左值，左值通常具名
+    -不可“取”地址的值就是右值，右值通常匿名
+    lvalue:非常左值、常左值 --- 左值
+    rvalue:纯右值 、xvalue:将亡值 -----右值
+
+右值引用
+    左值引用和右值引用
+    - 左值引用只能引用左值，不能引用右值
+        int a;
+        int&b = a; // OK
+        int c;
+        int& d = a + c; //ERROR
+    - 右值引用只能引用右值，不能引用左值
+        int&& e = a + c;// OK
+        int&& f=a;//ERROR
+    - 常左值引用，既能引用左值，也能引用右值
+        const int& g =a + c; // OK
+        const int& h =a;// OK
+    注意:
+        - 有没有常右值引用呢?
+         其实有的，只是没有必要，因为常右值引用，完全可以被常左值引用替代。
+    笔记：
+     左值引用和右值引用的差别：
+         1.左值引用是别名，是外号 //左值本来就有真名，再给起一个外号
+         2.右值引用就是真名。//右值本来就没有真名，是匿名内存，所以可以起一个真名。可以修改。
+
+
+移动语义
+    方法:
+        - 资源的转移代替 资源的重建
+    作用：
+        - 保证功能正确的情况下，做到性能提升
+        
+    笔记：
+        默认的拷贝构造 和 拷贝赋值 函数，在特定场景下(类中有指针成员变量) 会出现 浅拷贝的缺陷。
+            this->m_psz = that.m_psz; //error,只复制地址
+        将深拷贝构造函数、深拷贝赋值函数的参数改成右值引用：const String& that   ---》  String&& that
+            this->m_psz = that.m_psz;  //ok
+            
+        String c = String("world"); // 定义c,利用c.String( String("world") ); --> 触发String类的转移构造函数  //String("world")是右值，即将死亡，应该调用转移构造函数 //右值 更匹配 右值引用
+        
+        String d;
+        d = String("hello world"); // d.operator=( String("hello world") ) --> 触发的为转移赋值函数  //String("world")是右值，即将死亡，应该调用转移赋值函数 //右值 更匹配 右值引用
+        
+ 
+推荐书目
+    入门
+        - C++ 程序设计原理与实践
+            Bjarne Stroustrup
+        - C + + Primer
+            Stanley B. Lippman
+    进阶
+        - Effective C+ +:改善程序与设计的55个具体做法
+            Scott Meyers
+        - More Effective C+ +: 35个改善编程与设计的有效方法
+            Scott Meyers
+    深研
+        - 深度探索C++对象模型
+            Stanley B. Lippman
+        - 设计模式:可复用面向对象软件的基础
+            Erich Gamma, Richard Helm, ...
+    拓展
+        - 深入理解C++11: C+ + 11新特性解析与应用
+            IBM XL编译器中国开发团队
+        - Boost程序库完全开发指南:深入C++“准” 标准库
+            罗剑锋
+    休闲
+        - C++语言99个常见编程错误
+            Stephen C. Dewhurst
+        - C++语言的设计与演化
+            Bjarne Stroustrup
+        一 大话设计模式
+            程杰
+

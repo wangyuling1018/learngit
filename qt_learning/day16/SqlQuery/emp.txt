@@ -1,0 +1,31 @@
+-- 删除数据库
+DROP DATABASE IF EXISTS emp;
+--  创建emp数据库
+  CREATE DATABASE IF NOT EXISTS emp;
+-- 设置emp为当前数据库
+  USE emp;
+-- 创建学院信息表 dept
+ CREATE TABLE IF NOT EXISTS dept(
+      deptId  INT PRIMARY KEY AUTO_INCREMENT,
+      deptName VARCHAR(40) NOT NULL
+ );
+ -- 创建员工信息表
+ CREATE TABLE IF NOT EXISTS emp(
+    empNo INT PRIMARY KEY,
+    empName char(10) NOT NULL,
+    gender CHAR(2)  DEFAULT '男',
+    deptId INT,
+    salary DECIMAL(7,2) DEFAULT 5000,
+    CONSTRAINT dept_emp_fk FOREIGN KEY(deptId) REFERENCES dept(deptId)
+ );
+-- dept表添加测试数据
+  INSERT INTO dept(deptId,deptName) VALUES(1, '机械工程学院');
+  INSERT INTO dept(deptName) VALUES('信息科学与工程学院');
+  INSERT INTO dept VALUES(null, '经济管理学院');
+  INSERT INTO dept VALUES(null,'电气工程学院');
+  -- emp表添加测试数据
+  INSERT INTO emp(empNo,empName,gender,deptId,salary) VALUES(1001,'张浩然','男',1,12800);
+  INSERT INTO emp VALUES(1003,'万茜','女',1,13000);
+  INSERT INTO emp VALUES(2001,'王晓','女',2,8800);
+  INSERT INTO emp(empNo,empName,deptId,salary) VALUES(3001,'宋嘉',3,12000);
+  INSERT INTO emp VALUES(4001,'孙松',default,4,10500);

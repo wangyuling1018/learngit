@@ -1,0 +1,87 @@
+笔记：
+    class ostream {
+    public:
+         ostream& operator<<(int x) {...}
+         ostream& operator<<(const int x) {...}
+         ostream& operator<<(double x) {...}
+         ostream& operator<<(const double x) {...}
+         ostream& operator<<(float x) {...}
+         ostream& operator<<(const float x) {...}
+         .....
+         ostream& operator<<(char x) {...}
+         ostream& operator<<(const char* x) {...}
+         ostream& operator<<(Human x) {...} // ostream类中肯定没有一个形参为Human类型的operator<<函数，绝对不允许我们添加
+    };
+    ostream cout;
+
+    // 以上的代码模拟 C++标准库
+    // --------------------------------
+    // 以下的代码模拟 用户
+    int main( ) {
+        Human h;
+        cout << h; // cout.operator<<(h) --> 实参是Human    或  operator<<(cout,h)
+
+        int a;        double b;    float c;     short d;
+        const int ca;       const double cb;     const float cc;     const short cd;
+        cout << a;       //  cout.operator<<(a) --> 实参为int
+        cout << b;       //  cout.operator<<(b) --> 实参为double
+        cout << c;       //  cout.operator<<(c) --> 实参为float
+        cout << d;       //  cout.operator<<(d) --> 实参为short
+        cout << ca;       //  cout.operator<<(ca) --> 实参为 const int
+        cout << cb;       //  cout.operator<<(cb) --> 实参为const double
+        cout << cc;        //  cout.operator<<(cc) --> 实参为const float
+        cout << cd;          //  cout.operator<<(cd) --> 实参为const short
+        cout << "hello world";        //  cout.operator<<("hello world") --> 实参为 const char*
+        cout << '\n';          //  cout.operator<<('\n') --> 实参为char
+    }
+
+    2. C++语言的一个思想：
+       一个对象 内部 包含了 什么，我们就拿 对象 当 什么 来用.
+    例如：下标操作符重载代码就体现了：一个对象包含了数组，对象就可以当数组用，但是必须要有下标操作符重载函数才可以。
+    3.
+        Human h; // 定义h,利用 h.Human()
+        
+        h[i];  // 触发 h.operator[](i) --> 中括号操作符( 下标操作符 ) 函数
+        h(i,j,k); // 触发 h.operator()(i,j,k) -->小括号操作符( 函数操作符 )函数
+
+输入输出操作符的重载
+    输出操作符:<<    io.cpp
+        - 左操作数为非常左值形式的输出流(ostream)对象， 右操作数为左值或右值
+        - 表达式的结果为左操作数本身(而非副本)
+        - 左操作数的类型为ostream，若以成员函数形式重载该操作符，就应将其定义为ostream类的成员，该类为标准库提供，
+          无法添加新的成员，因此只能以全局函数形式重载该操作符
+          ostream& operator<<(ostream& 0s,const RIGHT& right){...}
+    输入操作符:>>     io.cpp
+        - 左操作数为非常左值形式的输入流(istream)对象，右操作数为非常左值
+        - 表达式的结果为左操作数本身(而非副本)
+        - 左操作数的类型为istream，若以成员函数形式重载该操作符，就应将其定义为istream类的成员，该类为标准库提供，
+          无法添加新的成员，因此只能以全局函数形式重载该操作符
+         istream& operator>>(istream& is,RIGHT& right){... }
+         
+运算符重载(二)
+    下标操作符: []    index. cpp
+        - 常用于在容器类型中以下标方式获取数据元素
+        - 非常容器的元素为非常左值，常容器的元素为常左值
+    解引用和间接成员访问操作符
+
+    解引用和间接成员访问操作符:*、->
+        - 如果一个类重载了“解引用”和"间接成员访问操作符”，那么该类的对象就可以被当做指针来使用.
+        - 应用的体现(智能指针)
+            智能指针的本质就是一个类对象，并且其维护指针型成员变量
+            
+智能指针    autoptr.cpp
+    常规指针的缺点
+        - 当一个常规指针离开它的作用域时，只有该指针变量本身所占据的内存空间(通常是4个字节)会被释放，而它所指向的动态内存并未得到释放
+        - 必须自己手动释放
+    智能指针的优点
+        - 智能指针是一个类对象(封装了常规指针)，当它离开作用域时，其析构函数负责释放该常规指针所指向的动态内存
+    智能指针与常规指针的一致性
+        - 为了使智能指针也能象常规指针一样，通过“*”操作符解引用，通过"->"操作符访问其目标的成员，就需要对这两个操作符进行重载
+    智能指针与常规指针的不-致型
+        - 智能指针的默认拷贝构造和默认拷贝赋值只是简单复制堆对象的地址
+        - 当多个智能指针持有同一个堆对象的地址，该堆对象将在多个智能指针的析构函数中被释放多次(double free)
+    愚蠢的解决方法
+        - 只允许一个智能指针持有堆对象的地址。
+        - 自定义拷贝构造和拷贝赋值，对智能指针所持有的堆对象地址，以地址间的转移代替复制
+        - 智能指针的转移语义与常规指针的复制语义不一致
+

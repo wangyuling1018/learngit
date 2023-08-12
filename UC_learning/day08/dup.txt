@@ -1,0 +1,3 @@
+oldfd = 3
+newfd = 1
+hello linux!

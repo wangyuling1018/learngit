@@ -1,0 +1,65 @@
+
+UDP特征协议的基本
+    ●UDP不提供客户机与服务器的连接
+        ➢UDP的客户机与服务器不必存在长期关系。一个UDP的客户机在通过一个套接字向一个UDP服务器发送了一个数据报之后，
+        马上可以通过同一个套接字向另一个UDP服务器发送另一个数据报。同样，一个UDP服务器也可以通过同一个套接字接收来自
+        不同客户机的数据报
+    ●UDP不保证数据传输的可靠性和有序性
+        ➢UDP的协议栈底层不提供诸如确认、超时重传、RTT估算以及序列号等机制。因此UDP数据报在网络传输的过程中，可能丢失
+        ，也可能重复，甚至重新排序。应用程序必须自己处理这些情况
+    ●UDP不提供流量控制
+        ➢UDP的协议栈底层只是一味地按照发送方的速率发送数据，全然不顾接收方的缓冲区是否装得下
+    ●UDP是全双工的
+        ➢在一个UDP套接字上，应用程序在任何时候都既可以发送数据也可以接收数据
+    笔记：1、UDP的最大特点是快，但是会丢包，
+        2、TCP相当于打电话，UDP相当于发快递或写信。
+        3、udp的一个套接字可以同时和多个客户机同时进行通信，通过recvfrom、sendto函数实现的
+            因为：recvfrom接收数据的同时，存一下对方的通信地址，sendto发送数据的时候，根据刚刚记录的通信地址发出去，udp没有缓存。
+        4、为什么TCP不能一个套接字可以同时和多个客户机同时进行通信？
+            答：TCP的套接字通信都是一个套接字对应一个客户机，因为TCP中的accept、connect返回的套接字都是有缓存的，缓存了对方的地址结构。往套接字里面写，就相当于往客户机里面写。
+
+常用函数
+    #include <sys/socket.h>
+    ssize_t recvfrom(int sockfd, void* buf, size_t count, int flags,
+            struct sockaddr* src_addr, socklen_t* addrlen);
+        功能:从哪里接收数据
+        参数:前四个参数和函数recv相同
+            src_addr:输出源主机的地址信息             //接收数据的同时，存一下对方的通信地址
+            addrlen:输入输出源主机的地址信息的字节数。
+        返回值:成功返回实际接收的字节数，失败返回-1
+
+    #include <sys/socket.h>
+    ssize_t sendto(int sockfd, void const* buf, size t count, int flags,
+            struct sockaddr const* dest_addr, socklen_t addrlen);
+        功能:发送数据到哪里
+        参数:前四个参数和函数send相同                  //发送数据的时候，根据刚刚记录的通信地址发出去
+            dest_addr:目的主机的地址信息。
+            addrlen:目的主机的地址信息的字节数。
+        返回值:成功返回实际发送的字节数，失败返回-1
+
+
+UDP通信模型
+    步骤    服务器       服务器           客户机         客户机         步骤
+    1    创建套接字      socket         socket         创建套接字      1
+    2    准备地址结构    sockaddr_in    sockaddr_in    准备地址结构     2
+    3    绑定地址       bind            ———           ————           ————
+    4    接收请求       recvfrom       sendto          发送请求       3
+    5    发送响应       sendto         recvfrom        接收响应       4  d
+    6    关闭套接字     close           close          关闭套接字      5
+
+    ➢UDP服务器的阻塞焦点不在accept函数上，而在recvfrom函数上。任何一一个UDP客户机通过sendto函数发送的请求数据都可以被recvfrom函数
+    返回给UDP服务器，其输出的客户机地址结构src_addr可直接被用于向客户机返回响应时调用sendto函数的输入
+    
+    
+    步骤    服务器       服务器           客户机         客户机         步骤
+    1    创建套接字      socket         socket         创建套接字      1
+    2    准备地址结构    sockaddr_in    sockaddr_in    准备地址结构     2
+    3    绑定地址       bind           connect         建立连接       3
+    4    接收请求       recvfrom       send/write      发送请求       4
+    5    发送响应       sendto         recv/read       接收响应       5
+    6    关闭套接字     close           close          关闭套接字      6
+
+    ➢UDP的connect函数与TCP的connect函数完全不同，既无三路握手，亦无虚拟电路,而仅仅是将传递给该函数的对方地址结构缓存在套接字对象中。
+    此后收发数据时，可不使用recvfrom/sendto函数，而是使用recv/send或者read/write函数， 直接和所连接的对方主机通信
+
+

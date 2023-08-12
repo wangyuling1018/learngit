@@ -1,0 +1,102 @@
+笔记：
+    1. 构造函数的作用： 定义 对象的各个成员变量（造包子馅）*******************************
+
+       对象的状态：是这个对象中的每个成员变量状态的组合
+
+    2. string类对象的5中定义方法：
+
+        string s1("hello"); // 定义s1,利用s1.string("hello") --> s1维护的字符串为"hello"
+
+        string s2(s1); //=s1; 定义s2,利用s2.string(s1) --> s2维护的字符串 和 s1维护的字符串 内容相同
+
+        string s3; // 定义s3,利用s3.string() --> s3维护的字符串为"\0"
+        s3 = s2; // s3.operator=(s2) ---> s3维护的字符串 和 s2维护的字符串 内容相同
+
+       string s4 = "hello";  // ---> s4维护的字符串为"hello"
+
+       string s5; // 定义s5,利用s5.string() --> s5维护的字符串为"\0"
+       s5 = "hello"; // ---> s5维护的字符串为 "hello"
+
+    3. 注意事项：
+        如果是初始化,并且"="两边类型完全相同，那么=xxx 和 (xxx)无差别
+        如果是赋值,并且"="两边类型完全相同,那么触发operator=函数的调用
+    无论是初始化还是赋值，只要"="两边类型不同，编译器将"="右边的数据类型 转成和"="左边的类型一致
+
+
+类的定义与实例化
+    构造函数clsobj1.cpp
+        - 函数名必须与类名相同，且没有返回值类型
+    构造函数调用时间
+        - 在定义对象同时自动被调用，且仅被调用一次
+            √对象定义语句
+            √new操作符
+    构造函数的作用
+        - 定义对象的各个成员变量并赋初值。设置对象的初始状态
+        - 在对象定义之初想实现的任何操作
+        //构造函数没有返回值，返回值不是void,void也是一种返回类型。
+    对象的定义过程
+        √为整个对象分配内存空间
+        √以构造实参调用构造函数
+            定义成员变量
+            执行构造代码
+    类的声明与实现可以分开  clsobj2.cpp
+        class 类名 {
+            返回类型 函数名(形参表);
+        };
+        
+        返回类型 类名::函数名(形参表){
+            函数体;
+        }
+    将类的声明、实现与使用分别放在不同的文件里 Human.h
+    对象的定义与销毁  clsobj3.cpp
+        - 在栈中定义单个对象
+            类名 对象; //注意不要加空括号
+            类名 对象(实参表);
+        - 在栈中定义对象数组
+            类名 对象数组[元素个数];
+            类名 对象数组[元素个数] = {类名(实参表), ..};
+            类名 对象数组[] =类名(实参表), ..;
+        - 在堆中定义/销毁单个对象
+            类名* 对象指针 = new 类名;
+            类名* 对象指针 = new 类名();
+            类名* 对象指针 = new 类名(实参表);
+            delete 对象指针;
+        - 在堆中定义/销毁对象数组
+            类名* 对象数组指针 = new 类名[元素个数];
+            类名* 对象数组指针 = new 类名[元素个数] {类名(实参表),...};
+            //上面的写法需要编译器支持C++11标准
+            delete[] 对象数组指针;
+
+C+ +标准库--string类
+    class string {
+    public:
+        string (/* string*this */ const char* psz=""): m_psz( new char[strlen(psz)+1]){
+            //在this指针指向的内存空间中定义m_psz并赋初值为指向堆内存
+            strcpy( m_psz,psz);
+        }
+        string( /* string* this */ const string& that): m_psz( new char[strlen(that.m_psz)+1]){
+            //在this指向内存空间中定义m_psz并赋初值为指向另一块新的堆内存
+            strcpy( m_psz, that.m_psz);
+        }
+        string& operator= /* string* this */ const String& that){
+            delete[]this->m_psz; //释放旧资源
+            this->m_psz= new char[strlen(that.m_psz)+1]; //分配新资源
+            strcpy(this->m_psz,that.m_psz);//拷贝新内容
+        }
+        char* c_str(){
+            return m_psz;
+        }
+    private:
+        char* m_psz;
+   
+    };
+    string s1(“hello”);//定义s1，并利用s1.string(“hello”)
+    
+    string s2=s1;/(s1);//定义s2,并利用s2.string(s1)
+    
+    string s3; //定义s3,并利用s3.string()
+    s3=s2; // s3.operator=(s2)
+    
+    string s4=“hello”;//定义匿名对象,并利用匿名对象.string("hello")。string s4=匿名对象
+    
+    string s5; s5="hello";//定义匿名对象,并利用匿名对象.string("hello")。s5=匿名对象

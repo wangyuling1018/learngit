@@ -1,0 +1,140 @@
+闹钟
+    #include <unistd.h>
+    unsigned int alarm(unsigned int seconds);
+        功能:设置闹钟
+        参数：seconds 以秒为单位的闹钟时间
+        返回值:返回0或先前所设闹钟的剩余秒数。
+    ➢alarm函数使系统内核在该函数被调用以后seconds秒的时候，向调用进程发送SIGALRM(14)信号
+    ➢若在调用该函数前已设过闹钟且尚未到期，则该函数会重设闹钟，并返回先前所设闹钟的剩余秒数，否则返回0
+    ➢若seconds取0，则表示取消先前设过且尚未到期的闹钟
+
+信号集
+    ●多个信号组成的信号集合谓之信号集
+    ●系统内核用sigset_t类型表示信号集
+        ➢在<signal.h>中又被定义为typedef __sigset_t sigset_t;
+        ➢在<sigset.h>中有如下类型定义
+            #define _SIGSET_NWORDS (1024/(8* sizeof(unsigned long int)))
+            typedef struct {
+                unsigned long int __val[_SIGSET_NWORDS];
+            }__sigset_t;
+    ●sigset_t类型是一个结构体,但该结构体中只有一个成员，是一个包含32个元素的整数数组(针对32位系统而言)
+
+    ●可以把sigset_t类型看成一个由1024个二进制位组成的大整数
+        ➢其中的每一位对应一个信号，其实目前远没有那么多信号
+        ➢某位为1就表示信号集中有此信号，反之为0就是无此信号
+        ➢当需要同时操作多个信号时，常以sigset_t作为函数的参数或返回值的类型
+    笔记：
+    1、信号集的使用场景：在操作多个信号的时候，使用信号集
+    2、sigset_t 本质是一个数组，这个数组有32个元素，每个元素是4个字节，共计是128个字节的存储区。
+        共1024个比特位。通过比特位表示是否有某个信号，共1024个比特位。例如：第31位是1，表示有31号信号；第2位是0，表示没有2号信号
+
+信号集操作相关函数
+    #include <signal.h>
+    int sigfillset (sigset_t* sigset);
+        功能:填满信号集，即将信号集的全部信号位置1  //1024个比特位是1
+        参数:sigset：信号集
+        返回值:成功返回0，失败返回-1非会员水”
+
+    #include <signal.h>
+    int sigemptyset (sigset t* sigset);
+        功能:清空信号集，即将信号集的全部信号位清0  //1024个比特位是0
+        参数:sigset：信号集
+        返回值:成功返回0，失败返回-1
+
+    #include <signal.h>
+    int sigaddset (sigset t* sigset, int signum);
+        ➢功能:加入信号，即将信号集中与指定信号编号对应的信号位置1
+        ➢参数: sigset：信号集
+              signum:信号编号
+        ➢返回值:成功返回0，失败返回-1
+
+    #include <signal.h>
+    int sigdelset (sigset t* sigset, int signum);
+        功能:删除信号，即将信号集中与指定信号编号对应的信号位清0
+        参数:sigset：信号集
+             signum:信号编号
+        返回值:成功返回0，失败返回-1
+
+    #include <signal.h>
+    int sigismember (const sigset t* sigset, int signum);
+        功能:判断信号集中是否有某信号，即检查信号集中与指定信号编号对应的信号位是否为1
+        参数:sigset：信号集
+            signum:信号编号
+        返回值:有则返回1，没有返回0，失败返回-1
+    笔记：
+    1、参数1加了const，是因为不修改指针所指的数据所以加const修饰，
+    2、注意：在设计函数的时候，尤其是针对指针类型的数据，一定要考虑const是加还是不加。通过指针传递过来一
+        块存储区地址，你对这块存储区仅仅是为了读而已，在设计形参的时候最好加上const关键字，以避免手抖修改了这块数据。
+
+信号屏蔽
+递送、 未决与掩码
+    ●当信号产生时，系统内核会在其所维护的进程表中，为特定的进程设置一一个与该信号相对应的标志位，
+     这个过程就叫做递送(delivery)
+    ●信号从产生到完成递送之间存在一定的时间间隔，处于这段时间间隔中的信号状态称为未决(pending)
+    ●每个进程都有一个信号掩码(signal mask),它实际上是一一个信号集,位于该信号集中的信号一旦产生，
+     并不会被递送给相应的进程，而是会被阻塞(block)在未决状态
+    ●在信号处理函数执行期间，这个正在被处理的信号总是处于信号掩码中，如果又有该信号产生，则会被阻塞，
+     直到上一个针对该信号的处理过程结束以后才会被递送
+    ●当进程正在执行类似更新数据库这样的敏感任务时，可能不希望被某些信号中断。这时可以通过信号掩码暂时
+     屏蔽而非忽略掉这些信号，使其一旦产生即被阻塞于未决状态，待特定任务完成后，再回过头来处理这些信号
+     笔记；
+        1、信号集的运用场景：操作多个信号的时候，会用到信号集，例如：信号屏蔽场景
+        2、信号产生-送达，未送达之前叫未决，
+        3、不让信号送达，叫信号屏蔽
+        4、信号掩码是一个信号集
+        4、进程的信号掩码中有哪些信号，进程就会屏蔽哪些信号
+        5、在信号处理函数执行期间，这个正在被处理的信号在信号掩码中，信号处理函数执行完，该信号会从信号掩码中删除，
+            即该信号被解除屏蔽。
+       
+    
+
+设置掩码与检测未决
+    # include <signal.h>
+    int sigprocmask (int how, const sigset_t* sigset,sigset_t* oldset);
+        功能:设置调用进程的信号掩码
+        参数:how:修改信号掩码的方式，可取以下值
+                SIG_BLOCK-将sigset中的信号加入当前信号掩码
+                SIG_UNBLOCK-从当前信号掩码中删除sigset中的信号
+                SIG_SETMASK-把sigset设置成当前信号掩码
+            sigset:信号集，取NULL则忽略此参数
+            oldset:输出原信号掩码，取NULL则忽略此参数
+        返回值:成功返回0，失败返回-1
+    例子:
+    sigset_t sigset;
+    sigemptyset (&sigset);
+    sigaddset (&sigset, SIGINT);
+    sigaddset (&sigset, SIGQUIT);
+    sigset_t oldset;
+    if (sigprocmask (SIG_SETMASK, &sigset,&oldset)==-1){
+        perror ("sigprocmask");
+        exit (EXIT FAILURE);
+    }
+
+    #include < siqnal.h>
+    int sigpending (sigset_ t* sigset);
+        功能:获取调用进程的未决信号集
+        参数: sigset: 输出未决信号集
+        返回值:成功返回0，失败返回-1
+    例子:
+        sigset_t sigset;
+        if(sigpending (&sigset) ==-1){
+            perror("sigpending");
+            exit(EXIT_FAILURE);
+        }
+        if(sigismember(&sigset, SIGINT) == 1){
+            printf("SIGINT信号未决\n");
+        }
+
+可靠和不可靠信号的屏蔽
+    ●对于可靠信号，通过sigprocmask函数设置信号掩码以后，每种被屏蔽信号中的每个信号都会被阻塞，
+     并按先后顺序排队，一旦解除屏蔽，这些信号会被依次递送
+    ●对于不可靠信号，通过sigprocmask函数设置信号掩码以后，每种被屏蔽信号中只有第一个会被阻塞，
+     并在解除屏蔽后被递送，其余的则全部丢失
+笔记：
+    1、信号屏蔽：信号来了，等一会，进程忙完，再处理该信号
+    2、信号忽略：信号来了，等一会，进程忙完，找不到该信号了，也就处理不了该信号
+    3、有5个17号信号每秒中来一个，当第一个17信号正在处理，此时信号掩码中有17号信号（17号信号被进程屏蔽），当第一个信号处理完后，
+      17号信号就从信号掩码中删除了（17号信号屏蔽被解除了），此时有4个17信号正在等待被处理，正在等待被处理的4个信号，
+      只处理1个（17号信号又被加入信号掩码中），丢3个。 --- 17信号是不可靠信号
+
+

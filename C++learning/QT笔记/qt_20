@@ -1,0 +1,24 @@
+
+
+TCP通信
+serverd端 包含的头文件：QTcpServer、QTcpSocket
+client端  包含的头文件： QTcpSocket
+
+QTcpServer：监听类
+QTcpSocket：通信类
+
+
+
+
+发布步骤：
+    新建文件夹
+    将exe文件放入新年文件夹
+    打开minGW的DOS窗口 (window最左下角，点击打开Qt 5.14.2 MinGW 7.3.2-bit)
+    进入exe所在路径
+    输入命令：windeployqt client.exe
+    
+
+
+
+
+

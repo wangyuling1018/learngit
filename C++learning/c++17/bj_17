@@ -1,0 +1,241 @@
+I/O流
+I/O流的基本概念
+    流/流数据(Stream)
+        - 字节序列形式的数据(如:二进制数据、文本字符、图形图像、音频视频，等等)，犹如流水一般，从一个对象流向另一个对象
+    输入流(Input Stream)
+        - 数据从表示输入设备(如:键盘、磁盘文件等)的对象流向内存对象。
+        例如:cin >> student;
+    输出流(Output Stream)
+        - 数据从内存对象流向表示输出设备(如:显示器、打印机、磁盘文件等)的对象。
+        例如:cout<<student;
+    流缓冲(Stream Buffer)
+        - 介于各种I/O设备和内存对象之间的内存缓冲区
+        - 当从键盘输入时，数据首先进入键盘缓冲区，直到按下回车键，才将键盘缓冲区中的数据灌注到输入流缓冲区，之后再通过流操作符 ">>" 进入内存对象
+        - 当向显示器输出时，数据首先通过流操作符 "<<"从内存对象进入输出流缓冲区，直到缓冲区满或遇到换行符，才将其中的数据灌注到显示器上显示出来
+    流对象(Stream Object)
+        - 表示各种输入输出设备的对象，如键盘、显示器、打印机、磁盘文件等，因其皆以流的方式接收或提供数据，故称为流对象
+        - 向下访问各种物理设备接口，向上与应用程序交互，中间维护流缓冲区
+        - 三个预定义的标准流对象
+            cin:标准输入设备------ 键盘
+            cout: 标准输出设备-----显示器
+            cerr:标准错误输出设备--------显示器，不带缓冲
+    流类(Stream Class)
+        - 用于实例化流对象的类
+        - cin和cout分别是istream_withassign和
+            ostream_withassign类的对象
+    流类库(Stream Class Library)
+        -C++以继承的方式定义了一组流类，并将其作为标准C++库的一部分提供给用户
+        -基于流类库可以构建三种形式的流对象
+            √面向控制台的I/O流
+            √面向文件的I/O流
+            v面向内存的I/O流
+
+I/O流类库
+
+    以上只有蓝色和红色的9个类，针对具体目标执行具体操作
+    其中蓝色的三个类已经预定义了cin/cout/cerr流对象
+    实际编程中主要使用红色的6个类实现针对文件和内存的I/O
+    出于某些原因，所有I/O流类都不支持拷贝构造和拷贝赋值
+    #include <iostream>
+        - ios、istream、 ostream、iostream
+        - istream_withassign、 ostream_withassign、 iostream_withassign
+    #include <fstream >
+        - ifstream、 ofstream、 fstream
+    #include <strstream>
+        - istrstream、 ostrstream、 strstream
+    #include <sstream>
+        - istringstream、 ostringstream、 stringstream
+
+I/O流的打开与关闭
+    通过构造函数打开I/O流
+        - 打开输入流
+            ifstream (const char* filename,openmode mode);
+        - 打开输出流
+            ofstream (const char* filename,openmode mode);
+        - 打开输入输出流
+            fstream (const char* filename,openmode mode);
+    其中filename表示文件路径，mode表示打开模式
+    打开模式    ofstream.cpp
+        - ios::out
+            √打开文件用于写入，不存在则创建，存在则清空
+            √适用于ofstream(缺省)/fstream
+        - ios::app
+            √打开文件用于追加，不存在则创建，存在不清空
+            √ 适用于ofstream/fstream
+        - ios::trunc
+            √打开时清空原内容
+            √ 适用于ofstream/fstream
+    打开模式    ifstream.cpp
+        - ios::in
+            √打开文件用于读取，不存在则失败，存在不清空
+            √适用于ifstream(缺省)/fstream
+        - ioS.:ate
+            √打开时定位文件尾
+            √适用于ifstream/fstream
+        - ios.:binary
+            √ 以二进制模式读写
+            √适用于ifstream/ofstream/fstream
+
+I/O流对象的状态   iostate.cpp
+    I/O流类对象内部保存当前状态，其值为以下常量的位或
+        - ios::goodbit: 0, 一切正常
+        - ios:badbit: 1,发生致命错译
+        - ios.eofbit: 2,遇到文件尾
+        - ios:ailbit: 4,打开文件失败或实际读写字节数未达预期
+
+I/O流的状态成员函数
+    状态成员函数                                    说明
+    boolios::good(void);                         流可用，状态位全零，返回true
+    bool ios::bad (void);                        badbit位是否被设置
+    boolios::eof(void);                          eofbit位是否被设置
+    bool ios:fail (void);                        failbit位是否被设置
+    iostate ios::rdstate(void);                  获取当状态
+    void ios::clear(iostate s = ios::goodbit);    设置(复位)流状态
+
+l/O流的状态 iostate.cpp
+    l/O流类对象支持到bool类型的隐式转换
+        - 发生1,2,4等情况，返回false,否则返回true
+        - 将I/O流对象直接应用到布尔上下文中，即可实现转换
+    处于1或4状态的流，在复位前无法工作
+
+非格式化/O
+    写入字符    notormat.cpp
+        - ostream& Ostream::put (char ch);
+            √一次向输出流写入一 个字符， 返回流本身
+    刷输出流
+        - ostream& ostream.:flush (void);
+            √将输出流缓冲区中的数据刷到设备上,返回流本身
+    读取字符    noformat.cpp
+        - int istream::get (void);
+            √成功返回读到的字符，失败或遇到文件尾返回EOF
+        - istream& istream::get (char&ch);
+            √返回输入流本身，其在布尔上下文中的值，成功为true，失败或遇到文件尾为false
+    读取行 getline.cpp
+    - istream& istream::getline(char* buffer,streamsize num, char delim = '\n');
+        √ 读取字符(至定界符)到buffer中。
+        √ 一旦读取了num个字符还未读取定界符，第num个字符设置为'\0'，返回(输入流对象状态为4
+        √ 如果因为遇到定界符(缺省为\n’)返回(输入流对象状态为0），定界符被读取并丢弃，追加结尾空字符\0’，读指针停在该定界符的下一个位置。
+        √ 遇到文件尾，返回(输入流对象状态为6)。
+
+二进制I/O
+    读取二进制数据
+        - istream& istream.:read (char* buffer,streamsize num);
+            从输入流中读取num个字节到缓冲区buffer中
+            返回流对象本身，其在布尔上下文中的值，成功(读满)为true,失败(没读满)为false
+            如果没读满num个字节，函数就返回了，比如遇到文件尾，最后一次读到缓冲区buffer中的字节数，可以通过istream:gcount()函数获得
+    获取读长度
+        - streamsize istream.:gcount (void);
+            返回最后一 次从输入流中读取的字节数
+    写入二进制数据
+        - ostream& ostream::write (const char* buffer, streamsize num);
+            将缓冲区buffer中的num个字节写入到输出流中
+            返回流本身，其在布尔上下文中的值，成功(写满)为true，失败(没写满)为false
+    
+
+读写指针与随机访问
+    设置读/写指针位置
+        istream& istream::seekg (off type offset, ios::seekdir origin);
+        ostream& ostream::seekp (off type offset, ios::seekdir origin);
+            √origin表示偏移量offset的起点
+                ios::beg: 从文件的第一个字节
+                ios::cur: 从文件的当前位置
+                ios::end:从文件最后一个字节的下一个位置√ offset为负/正表示向文件头/尾的方向偏移
+            √ 读/写指针被移到文件头之前或文件尾之后，则失败
+    获取读/写指针位置
+        pos_type istream::tellg (void);
+        pos_type ostream::tellp (void);
+            √ 返回读/写指针当前位置相对于文件头的字节偏移量
+
+字符串流
+    输出字符串流
+        #include <sstream>
+        ostringstream oss;
+        oss< 1234< '<< 56.78 < ''<< "ABCD";
+        string os = oss.str ();
+    输入字符串流
+        #include <sstream>
+        string is ("1234 56.78 ABCD");
+        istringstream iss (is);
+        int i;
+        double d;
+        string s;
+        iss >> i >> d >> s;
+
+格式化I/O
+流函数(一组成员函数)
+    - I/O流类(ios)定义了一组用于控制输入输出格式的公
+        有成员函数，调用这些函数可以改变I/O流对象内部的格式状态，进而影响后续输入输出的格式化方式流控制符(一组全局函数)
+    -标准库提供了一组特殊的全局函数，它们有的带有参数(在iomanip头文件中声明)，有的不带参数(在iostream头文件中声明).
+    -因其可被直接嵌入到输入输出表达式中，影响后续输入输出格式，故形象称之为流控制符
+
+I/O流格式化函数
+    格式化函数                           说明
+    int ios::precision (int);           设置浮点精度，返回原精度
+    int ios:precision (void) const;     获取浮点精度
+    int ios::width (int);               设置显示域宽，返回原域宽
+    int ios::width (void) const;        获取显示域宽
+    char ios:fill (char);               设置填充字符，返回原字符
+    char ios::fill (void) const;        获取填充字符
+    long ios::flags (long);             设置格式标志，返回原标志
+    long ios::flags (void) const;       获取格式标志
+    long ios::setf (long);              添加格式标志位，返回原标志
+    long ios.setf (long, long);         添加格式标志位，返回原标志先用第二个参数将互斥域清零
+    long ios.:unsetf (long);            清除格式标志位，返回原标志
+    一般而言，对I/O流格式的改变都是持久的，即只要不再设置新格式，当前格式将始终保持下去
+    显示域宽是个例外，通过ios:width(int)所设置的显示域宽，只影响紧随其后的第一次输出，再往后的输出又恢复到默认状态
+
+I/O流格式标志
+
+格式标志位
+互斥域
+说明
+ios::left
+左对齐
+ios::right
+ios::adjustfield
+右对齐
+ios::internal
+数值右对齐，符号左对齐
+ios::dec
+十进制
+ios::oct
+ios::basefield
+八进制
+ios::hex
+十六进制
+ios::fixed
+用定点小数表示浮点数
+ios::floatfield
+ios::scientific
+用科学计数法表示浮点数
+
+I/O流格式标志
+格式标志位
+说明
+ios::showpos ios::showbase ios::showpoint ios::uppercase ios::boolalpha
+正整数前面显示+号显示进制前缀0或0x显示小数点和尾数0数中字母显示为大写用字符串表示布尔值每次插入都刷流缓冲以空白字符作分隔符
+ios::unitbuf
+ios::skipws
+
+
+举例
+    cout.precision (10) ;
+    cout << sqrt (200) << endl;// 14.14213562
+    cout << cout.precision () << endl; // 10
+    cout.setf (ios::scientific, ios::floatfield); cout << sqrt (200) << endl;// 1.4142135624e+01 cout.width(10);
+    cout.fill ('-');
+    cout.setf (ios::internal, ios::adjustfield); cout.setf(ios::showpos);
+    cout << 12345 << endl; // +- --- -12345
+
+
+I/O流格式化控制符
+
+举例
+    cout << setprecision (10) << sqrt (200) << end1; // 14.14213562
+    cout << cout.precision () << endl;
+    // 10
+    cout << scientific << sqrt(200) // 1.4142135624e+01
+    <<endl;
+    cout <<setw (10) << setfill('-')<< internal << showpos << 12345 << endl;
+    //+----12345
+

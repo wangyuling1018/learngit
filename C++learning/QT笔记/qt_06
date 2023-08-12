@@ -1,0 +1,290 @@
+QT定时器事件
+    隔一段时间去做同一个操作
+        例如：视频播放的时候隔1s加载1000张图片，视觉上是没有卡顿的是连续的
+    定时器事件：由QObject提供
+    定时器信号：由QTimer提供
+    
+定时器事件：
+    int Q0bject:startTimer (int interval）; //启动定时器，以后每隔interval毫秒触发-次定时器事件，返回定时器ID
+    void Q0bject:timerEvent (QTimerEvent* ) [virtual]；//定时器事件处理函数
+    void QObject:kilTimer(int id);//关闭定时器，关闭参数id所标识的定时器
+
+    
+项目：基于定时器事件的图片浏览器
+    思想：从目录中读取图片 来实现 随机浏览图片
+    布局：
+        添加控件：Containers：Frame    //框架
+        设置属性：
+   
+    头文件代码：
+        #include <QPainter> //画家类
+        #include <QImage>   //处理图片的类
+        #include <QTime>    //获取时间作为随机种子，来产生随机数
+        #include <QDir>     //处理目录的类
+        #include <QVector>  //容器，保存图片
+        #include <QDebug>
+        #include <QRandomGenerator> //随机种子产生器
+        
+        protected:
+            // 绘图事件处理函数
+            void paintEvent(QPaintEvent*);
+            // 定时器事件处理函数
+            void timerEvent(QTimerEvent*);
+
+        private slots:
+            void on_m_button_clicked();
+
+        private:
+            // 将图片加载到容器
+            void loadImage(const QString& path);
+
+        private:
+            QVector<QImage> m_vecImages; // 保存图片的向量容器
+            int m_index;// 图片在容器中的索引
+            int m_timerID;// 定时器ID
+            int m_isStarted;// 标记    true--启动   false--停止
+
+    
+    cpp文件代码：
+        构造函数：
+            m_index = 0;
+            m_isStarted = false;
+            // 设置随机种子  -- 利用当前时间毫秒值作为随机种子
+            //qDebug() << "随机数11111:" << QRandomGenerator::global()->bounded(10);
+            //qsrand(QTime::currentTime().msec());  //qsrand过时函数,用QRandomGenerator替代;
+            // 加载图片
+            loadImage("/Users/wyl/C++_Projects/qt_learning/day06/Timer/images");
+            //loadImage("../Timer/images");
+            qDebug() << "加载图片的数量：" << m_vecImages.size();
+        
+        // 将图片从指定路径加载到向量容器中
+        void TimerDialog::loadImage(const QString& path){
+            QDir dir(path);
+            /*
+            QStringList list = dir.entryList(QDir::Files);//获取目录下的所有文件的字符串列表  //只获取了图片名称
+            for(int i = 0; i < list.size(); i++){
+                QImage image(path + "/" + list.at(i)); //图片完整路径，保存入容器中
+                m_vecImages << image;
+            }
+            */
+            
+            //递归遍历指定目录下的子目录
+            QStringList list;
+            QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files);//获取指定目录下的所有子目录的字符串列表
+            for(int i = 0;i < fileInfoList.size();i++){
+                if(fileInfoList[i].suffix() == "jpg" || fileInfoList[i].suffix() == "png"
+                        || fileInfoList[i].suffix() == "jpeg"){//过滤，只要图片
+                    list.append(fileInfoList[i].fileName());
+                }
+            }
+            
+            //QDir::Dirs ---包含.和..路径，如果for会进入死循环
+            //QDir::NoDotAndDotDotNoDot ---不包含 "." and ".."
+            //QDir::NoDot  -----不包含 "."
+            //QDir::NoDotDot -------不包含".."
+
+            for(int i = 0; i < list.size(); i++){//使用文件名构造QImage对象，并添加到向量容器中
+                QImage image(path + "/" + list.at(i));
+                m_vecImages << image;
+            }
+
+            //递归遍历指定目录下的子目录
+            QStringList list2 = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);//获取指定子目录下事务所有子目录 ，QDir::NoDotAndDotDot不包含"." 和".."
+            for(int i = 0; i < list2.size();i++){
+                loadImage(path + "/" + list2.at(i));
+            }
+        }
+
+        // 绘图事件处理函数
+        void TimerDialog::paintEvent(QPaintEvent*){
+            // 创建画家类对象
+            QPainter painter(this);
+            // 获取 绘图区域
+            QRect rect = ui->frame->frameRect();
+            // 坐标系平移
+            rect.translate(ui->frame->pos());
+            // 绘制图片
+            painter.drawImage(rect,m_vecImages[m_index]);
+
+        }
+
+        // 定时器事件处理函数
+        void TimerDialog::timerEvent(QTimerEvent*){ //定时器是隔一段时间获取一张图片，那么定时器事件处理函数：随机产生一张图片
+            //QRandomGenerator::global()->bounded(10)； 获取0-10的随机数
+            m_index = QRandomGenerator::global()->bounded(10) % m_vecImages.size();
+            update();// 触发绘图事件
+        }
+
+        // "开始/停止"
+        void TimerDialog::on_m_button_clicked()
+        {
+            if(!m_isStarted){
+                m_isStarted = true;
+                m_timerID = startTimer(500);// 启动定时器，500毫秒 = 0.5秒，半秒钟切换一张图片
+                ui->m_button->setText("开始");
+
+            }else{
+                m_isStarted = false;
+                killTimer(m_timerID);// 停止定时器
+                ui->m_button->setText("关闭");
+
+            }
+
+        }
+        
+鼠标事件
+    QWidget类定义了以下虚函数提供对鼠标事件的处理，其参数 QMouseEvent描述了鼠标事件的细节，如引发事件的鼠标按键、 鼠标所在位置等
+        virtual void mousePressEvent (QMouseEvent* e);//鼠标按下
+        virtual void mouseReleaseEvent (QMouseEvent* e);//鼠标抬起
+        virtual void mouseDoubleClickEvent (QMouseEvent* e);//鼠标双击
+        virtual void mouseMoveEvent (QMouseEvent* e); //鼠标移动
+    
+    QMouseEvent
+        button()    //获取鼠标类型：Qt::leftButton、Qt::rightButton等
+        globalPos() //获取x、y坐标
+        globalX()   //获取x坐标
+        globalY()   //获取y坐标
+        localPos()  //获取鼠标坐标相对于窗口，返回值是浮点型的
+        x()，y()，pos() //返回鼠标坐标相对于窗口,鼠标坐标的（0，0）点是相对于当前窗口的
+        
+        
+    项目：鼠标测试，通过鼠标左键拖拽label方块移动
+        ui布局：
+            Qlabel：
+                textFormat：AutoText -- 凸起的效果
+                palete（设置颜色）  +  autoFillBackground（勾选） ---修改背景颜色
+
+        头文件：
+            #include <QMouseEvent>
+            protected:
+                void mouseMoveEvent(QMouseEvent *event);
+                void mousePressEvent(QMouseEvent *event);
+                void mouseReleaseEvent(QMouseEvent *event);
+
+            private:
+                QPoint m_pos;     // 记录label左上角坐标和鼠标坐标的差值
+                bool m_drag;      // 是否可以拖拽
+                
+                
+        cpp文件：
+            构造函数：
+                 m_drag = false;
+            
+            // 鼠标移动事件处理函数
+            void MouseDialog::mouseMoveEvent(QMouseEvent *event){
+                //计算label要移动的位置
+                QPoint newPos = event->pos() - m_pos;
+
+                QSize s1 = size();//窗口的大小（宽、高）
+                QSize s2 = ui->label->size(); //label的大小
+
+                //限制label只能在窗口中移动，不同拖到窗口外面
+                // x:  0 ~ 窗口宽 - label宽
+                if(newPos.x() < 0)
+                    newPos.setX(0);
+                else if(newPos.x() > s1.width() - s2.width())
+                    newPos.setX(s1.width() - s2.width());
+                // y:  0 ~ 窗口高 - label高
+                if(newPos.y() < 0)
+                    newPos.setY(0);
+                else if(newPos.y() > s1.height() -s2.height())
+                    newPos.setY(s1.height() - s2.height());
+
+                //移动label
+                ui->label->move(newPos);
+            }
+
+            // 鼠标按下事件处理函数
+            void MouseDialog::mousePressEvent(QMouseEvent *event){
+                // 是否是左键
+                if(event->button() == Qt::LeftButton){
+                    // 获取label所在区域
+                    QRect rect = ui->label->frameRect();
+                    // 坐标系平移
+                    rect.translate(ui->label->pos()); // 转换为以父窗口左上角为(0,0)的坐标
+                    // 判断鼠标是否点击在label内
+                    if(rect.contains(event->pos())){
+                        m_drag = true;
+                        m_pos = event->pos() - ui->label->pos();   // 保存鼠标坐标和label左上角坐标的差值
+                    }
+                }
+            }
+
+            // 鼠标释放事件处理函数
+            void MouseDialog::mouseReleaseEvent(QMouseEvent *event){
+                if(event->button() == Qt::LeftButton){
+                    m_drag = false;
+                }
+            }
+            
+            
+        
+键盘事件
+    QWidget类定义了以下虚函数提供对键盘事件的处理，其参数QKeyEvent描述了键盘事件的细节，如引发事件的键盘按键、文本等
+        virtual void keyPressEvent (QKeyEvent* e);    //按键按下
+        virtual void keyReleaseEvent (QKeyEvent* e);  //按键抬起
+    
+    QKeyEvent
+        key()  //返回一个键码值，
+            Qt::key_0       //键盘的上的数字0
+            Qt::key_space   //键盘上的空格键
+            Qt::key_left    //方向键，左
+            Qt::key_up      //方向键，上
+            Qt::key_Down    //方向键，下
+            Qt::key_right   //方向键，右
+            ......
+            
+    
+    案例：键盘测试，通过键盘方向键控制abel方块移动
+        思想：
+            鼠标按下不松开，是只产生一次鼠标按下事件
+            键盘按下不松开，是连续产生多次键盘按下事件  //键盘按下字母a不松开，一直打字
+            按键盘的方向键不松开，label方块一直移动，所以选择重写keyPressEvent
+
+        ui布局：
+            Qlabel：
+                textFormat：AutoText -- 凸起的效果
+                palete（设置颜色）  +  autoFillBackground（勾选） ---修改背景颜色
+        
+        头文件：
+            #include <QKeyEvent>
+     
+            protected:
+               void keyPressEvent(QKeyEvent *event);
+            
+        cpp文件：
+            void KeyDialog::keyPressEvent(QKeyEvent *event){
+                int x = ui->label->pos().x();
+                int y = ui->label->pos().y();
+
+                switch(event->key()){
+                    case Qt::Key_Left:
+                        x -= 10; break;
+                    case Qt::Key_Up:
+                        y -= 10; break;
+                    case Qt::Key_Right:
+                        x += 10; break;
+                    case Qt::Key_Down:
+                        y += 10; break;
+                }
+
+                //不用记录label的相对位置，因为跟鼠标没有关系
+                QSize s1 = size();
+                QSize s2 = ui->label->size();
+                if(x < 0)
+                    x = 0;
+                else if(x > s1.width() - s2.width())
+                    y = s1.width() - s2.width();
+
+                if(y < 0)
+                    y = 0;
+                else if(y > s1.height() - s2.height())
+                    y = s1.height() - s2.height();
+
+                ui->label->move(x,y);
+            }
+
+                
+                
+
+

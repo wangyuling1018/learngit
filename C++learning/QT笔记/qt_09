@@ -1,0 +1,41 @@
+
+QComboBox和QPlainTextEdit
+
+QComboBox
+    下拉列表框控件类
+    提供一个下拉列表共用户选择，也可以直接当作一个QLineEdit用作输入
+    每个项(item,或称列表项可以关联一个QVariant类型的变量， 用于存储-些不可见数据。
+    常用函数
+        - 添加项
+            void addltem(const QString &text,const QVariant &userData = QVariant())
+            void addItem(const QIcon &icon,const QString &text,const QVariant &userData = QVariant()
+        - 访问项
+            int currentIndex():返回当前项的序号，从O开始
+            QString currentText():返回当前项的文字
+            QVariant currentData(introle=Qt::UserRole):返回当前项的关联数据
+            QString itemText(intindex):返回指定索引号的项的文字
+            QVariant itemData(intindex,introle=Qt::UserRole):返回指定索引号的项的关联数据
+            int count():返回项的个数
+        - 常用信号
+            void currentlndexChanged(intindex)
+            void currentlndexChanged(const QString &text)
+
+QPlainTextEdit
+    用于编辑多行文本的编辑器，可以编辑普通文本
+    提供cut()、copy()、paste()、undo()、redo()、clear()、selectAlI()等标准功能的槽函数
+    还提供一个标准的右键快捷菜单
+    常用函数
+        -添加项字符串
+            QPlainTextEdit::appendPlainText(const QString &text)
+        -读取所有文字
+            QString QPlainTextEdit::toPlainText() const
+        -逐行读取需要使用QTextDocument
+            QTextDocument *QPlainTextEdit::document() const
+            int QTextDocument::blockCount()
+            QTextBlock QTextDocument::findBlockByNumber(int blockNumber)
+    常用信号
+        customContextMenuRequested()
+        为信号生成槽函数，在槽函数中生成QPainTextEdit的标准右键菜单
+
+QComboBox和C QPlainTextEdit：实现如图所示界面和功能
+

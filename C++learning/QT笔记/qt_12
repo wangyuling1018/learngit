@@ -1,0 +1,54 @@
+
+QStandardItemModel
+    QStandardltemModel是标准的以项数据(item data) 为基础的标准数据模型类
+    通常与QTableView组合成Model/View结构，实现通用的二维数据的管理功能
+    每个项是一个QStandardltem类的变量，用于存储项的数据、字体格式对齐方式等
+    QTableView
+        - 二维数据表视图组件
+        - 有多个行和多个列，每个基本显示单元是一个单元格
+        - 通过 setModel() 函数设置一个 QStandardltemModel类的数据模型
+        - -个单元格显示QStandardltemModel数据模型中的一个项
+    QItemSelectionModel
+        - -个用于跟踪视图组件的单元格选择状态的类
+        - 当在 QTableView 选择某个单元格，或多个单元格时，通过QltemSelectionModel 可以获得选中的单元格的模型索引，为单元格的选择操作提供方便。
+
+几个类的关系
+    QTableView是界面视图组件
+    其关联的数据模型是QStandardltemModel
+    关联的项选择模型是QltemSelectionModel
+    QStandardltemModel的数据管理的基本单元是QStandardItem
+
+QStandardltemModel使用实例：完成如图所示界面和功能
+    实例功能
+        打开一个纯文本文件，该文件是规则的二维数据文件，通过字符串处理获取表头和各行各列的数据，导入到一个QStandardltemModel 数据模型。
+        编辑修改数据模型的数据，可以插入行、添加行、删除行，还可以在QTableView视图组件中直接修改单元格的数据内容。
+        可以设置数据模型中某个项的不同角色的数据，包括文字对齐方式、字体是否粗体等。
+        通过 QltemSelectionModel获取视图组件上的当前单元格，以及选择单元格的范围，对选择的单元格进行操作。
+        将数据模型的数据内容显示到 QPlainTextEdit 组件里，显示数据模型的内容，检验视图组件上做的修改是否与数据模型同步。
+        将修改后的模型数据另存为一个文本文件。
+    界面设计
+        -窗口从 QMainWindow继承而来，中间的TableView和PlainTextEdit 组件采用水平分割条布局
+    创建Action
+QStandardItemModel的使用
+    系统初始化
+        -在MainWindow 的构造函数中进行界面初始化，数据模型和选择模型的创建，以及与视图组件的关联，信号与槽的关联等设置
+        -自定义的槽函数on_currentChanged()与selection的 currentChanged()信号关联，用于界面上tableView 选择单元格发生变化时，显示单元格的行号、列号、内容等信息
+
+    从文本文件导入数据
+        -将文本从文件中读取出来，保存在QStringList中
+        -使用QStringList中的内容初始化数据模型
+    数据修改
+        -当TableView 设置为可编辑时，双击一个单元格可以修改其内容。
+        -主窗口工具栏上有“添加行”、“插入行”、“删除行”按钮，它们实现相应的编辑操作，这些操作都是直接针对数据模型的，数据模型被修改后，会直接在TableView 上显示出来
+        - 添加行
+        - 插入行和添加行类似
+        - 删除行
+    单元格设置
+        -设置 单元格文字对齐方式和设置字体粗体的按钮。当在TableView中选择多个单元格时，可以同时设置多个单元格的格式
+        - 居左
+        - 居右、居中和居左类似
+        - 粗体
+    数据另存为文件
+        -在视图组件上对数据的修改都会自动更新到数据模型里，单击工具栏上的 “模型数据预览”按钮，可以将数据模型的数据内容显示到PlainTextEdit里。
+        -数据模型里的数据是在内存中的，工具栏上的“另存文件”按钮可以将数据模型的数据另存为一个数据文本文件，同时也显示在PlainTextEdit里
+

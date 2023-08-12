@@ -1,0 +1,205 @@
+回顾：
+    玩linux - 命令
+
+今日内容：
+1.命令
+    clear
+    cd
+    ls
+    touch
+    mkdir
+        - 创建一个空文件或者空目录
+    rm - remove - 删除
+        rm + 空格 + 路径/文件名
+        rm a.txt
+        rm /home/tarena/a.txt
+        
+        如果想要删除一个目录 - 咋整
+        rm + 空格 + 路径/目录 + -fr
+        rm -fr + 路径/路径
+            f - force
+            r - recursion 递归
+                如果目录中还有目录 - 递归 - 将目录中的目录也都删除
+    问题：
+        rm -fr + 路径/文件名  可以的
+        
+    cp - couple 拷贝
+        cp 源文件 目标文件 复制一份源文件到目标文件
+            cp hello.txt world.txt 可以
+                效果：将hello.txt拷贝了一份到world.txt
+            目标文件随便给
+            假设world.txt存在
+            cp hello.txt world.txt
+            可以的，将hello.txt拷贝得到world.txt，将原本的覆盖掉
+        cp 源文件 存在目录
+            cp hello.txt ./2206
+                效果：将hello.txt拷贝一份到2206中
+                如果是相对路径，当前路径的 . 可以省略的
+        cp -fr 源目录 目标目录
+            默认目标目录不存在
+            cp 2206 2207 -fr
+                效果：将2206目录拷贝得到2207，2207目录和2206目录是完全一样的
+                    目标目录如果存在了，就不是，而是存在目录
+        cp -fr 源目录 存在目录
+            cp 2206 2207 -fr
+                效果：将源目录拷贝一份到存在目录中
+                
+    mv - 移动/更名 - move
+        mv 源文件 目标文件
+            mv a.txt a1.txt 更名,a.txt重命名为a1.txt
+        mv 源文件 存在目录
+            mv a.txt 2206 将a.txt移动到2206中
+        mv 源目录 目标目录
+            更名 源目录重命名为目标目录
+        mv 源目录 存在目录
+            将源目录移动到存在目录中
+        
+        第二个参数是存在目录 - 移动
+        第二个参数不是存在目录 - 更名
+        
+        移动到2206里面，和2206里面有什么东西，没有一分钱关系
+        
+    echo 内容 > 文件名
+        将内容输入到文件中
+        先把文件清空 -> 再将内容输入到文件中
+        用于log日志
+        
+    echo 内容 >> 文件名
+        在之前的内容后再输入文件中
+        
+    cat 文件名
+        获取文件中的内容
+        使用cat更多
+        
+    练习：
+    1.进入到/home/tarena目录
+        cd /home/tarena
+    2.查看当前所在路径
+        pwd
+    3.创建一个2206的目录
+        mkdir 2206
+    4.在2206目录下创建一个1.txt
+        touch 2206/1.txt
+    5.将1.txt拷贝一份2.txt存储到2206目录下
+        cp 2206/1.txt 2206/2.txt
+    6.将2.txt拷贝一份到/home/tarena目录下
+        cp 2206/2.txt ./
+    7.以绝对路径的方式查看1.txt文件的详细信息
+        ls -l /home/tarena/2206/1.txt
+    8.将/home/tarena下的2.txt文件删除
+        rm /home/tarena/2.txt
+    9.查看2206下的2.txt文件内容
+        cat 2206/2.txt
+    10.将2206目录删除
+        rm -fr 2206
+        
+    将文件拷贝到当前目录下， . 不能省略
+        cp 2206/1.txt .
+        cp 2206/1.txt 2207
+    
+    find
+        语法格式： find 路径 -name 要查找的文件名
+        find /usr -name stdio.h
+            在/usr目录下找名为stdio.h的文件
+            在/usr以及其子目录下寻找stdio.h的文件
+            
+        find . -usr tarena -group tarena -name hello.txt
+            在当前目录下，找用户名为tarena，组名为tarena，名字为hello.txt的文件
+            
+    grep
+        grep -nR “关键字" 搜索路径
+        根据指定信息从文件内容中搜索
+        grep -nR "bbb" /home/tarena/2206
+            查找/home/tarena/2206目录中哪些文件内容包含“bbb”
+            就会在当前目录下去寻找 - 找到后 - 显示出来 - 并且将行号显示出来，在第几行中有bbb
+    
+    tar
+        压缩和解压缩
+            tar -jcvf 压缩包.tar.bz2 目录/文件
+                把指定的目录制作为bz2格式的压缩包
+            tar -zcvf 压缩包.tar.gz 目录/文件
+                把指定的目录制作为gz格式的压缩包
+            
+            tar -xvf xxx.tar.gz/bz2
+                解压缩
+            
+            mkdir tartest
+            cd tartest
+            touch hello.c
+            echo aljsdlf > hello.c
+            echo alsdf >> hello.c
+            cd ..   //回到上一级目录
+            
+            tar -jcvf 1.tar.bz2 tartest
+            tar -zcvf 2.tar.gz tartest
+            
+            区别：压缩的算法不同，得到的压缩包大小应该是不一样
+            
+            tar -xvf 1.tar.bz2 / 2.tar.gz
+            
+          
+2.vim编辑器
+    linux - 最常用的C编辑器 - vim
+    vscode
+    
+    ctrl + 回车  - 切换中英文
+    
+    是否可以直接从命令行模式转换为编辑模式呢 - 不行
+    后续写代码 - 没事儿 - esc - 进入到一般模式
+    
+    cd /home/tarena
+    cp /usr/include/stdio.h .
+    vim stdio.h
+    
+    shift + V ->选中当前所在行
+    然后 - 上下箭头 - 选中多行
+    y - 复制  到粘贴板
+    d - 剪切  到粘贴板
+    p - 粘贴  从粘贴板粘贴过来，粘贴到光标所在行的下一行
+    
+    删除 - 如果只是将内容剪切掉 - 但是不粘贴 - 效果 - 删除
+    
+    u - 撤销之前的操作
+    ctrl + r  - 撤销之前的一个操作
+    
+    /name  - 按回车 - 文件中的name会高亮显示
+    n - next - 自动找下一个name的位置
+    /nohl - 不再高亮显示 - handle
+    
+    x - p 粘贴 - 复制粘贴一个字符
+    
+    编辑模式 - 写代码完事
+    
+    命令行模式 - shift + ; - 进入到命令行模式
+    
+    vim + 文件名 + 行号 
+    
+    命令行模式的
+    
+    练习:
+    1.拷贝/etc/passwd到主目录
+    cd ~
+    cp /etc/passwd .
+    2.打开主目录下的passwd
+    vim passwd
+    3.快速移动到文件第十行
+    10G
+    4.将第10行开始向下的5行复制一份
+    5yy
+    shift + v -> 向下移动5行 -> y
+    5.将复制的内容粘贴到文件末尾
+    G
+    p
+    6.进入到编辑模式, 在文件末尾添加hello the new day
+    i
+    hello the new day
+    7.将文件中所有的home替换为2208
+    :%s/home/2208/g
+    8.迅速回到行首
+    1G  / gg
+    9.保存退出
+    :wq
+    
+    
+3.C语言
+

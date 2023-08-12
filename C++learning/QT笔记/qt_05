@@ -1,0 +1,173 @@
+QT事件处理机制：
+    // QObject
+    class QObject{
+    public:
+         virtual bool event(QEvent* e){
+              ...
+              if(e->type() == QEvent::Timer){
+                    timerEvent(e);
+                    return true;
+              }
+              else if(e->type() == QEvent::Show){
+                   // ...
+                   return true;
+              }
+              ...
+        }
+        ...
+
+    protected:
+          virtual void timerEvent(QTimerEvent *event){}
+          ...
+    };
+    // QWidget
+    class QWidget:public QObject{
+         xxx
+    public:
+         ...
+    protected:
+         virtual bool  event(QEvent *event){
+              if(event->type() == QEvent::KeyPress){
+                     keyPressEvent(event);
+                     return true;
+              }
+              else if(event->type() ==QEvent::KeyRelease ){
+        keyReleaseEvent(event);
+                    return true;
+              }
+              else if(event->type() ==QEvent::MouseButtonDblClick ){
+                    mouseDoubleClickEvent(event);
+                    return true;
+              }
+              else if(event->type() ==QEvent::MouseButtonPress ){
+                   mousePressEvent(event);
+                   return true;
+              }
+              else if(event->type() ==QEvent::MouseButtonRelease ){
+                   mouseReleaseEvent(event);
+                   return true;
+              }
+              else if(event->type() ==QEvent::MouseMove ){
+
+              }
+              else if(event->type() ==QEvent::Paint ){
+                   paintEvent(event);
+                   return true;
+              }
+              ...
+             return QObject::event(event);
+         }
+        
+        virtual void  keyPressEvent(QKeyEvent *event){}
+        virtual void  keyReleaseEvent(QKeyEvent *event){}
+
+        virtual void mouseDoubleClickEvent(QMouseEvent *event){}
+        virtual void mouseMoveEvent(QMouseEvent *event){}
+        virtual void mousePressEvent(QMouseEvent *event){}
+        virtual void mouseReleaseEvent(QMouseEvent *event){}
+
+         virtual void  paintEvent(QPaintEvent *event){}
+         ...
+    };
+    // MyWidget
+    class MyWidget:public QWidget{
+          Q_OBJECT
+    public:
+    protected:
+         void  keyPressEvent(QKeyEvent *event){}
+         void  keyReleaseEvent(QKeyEvent *event){}
+         void  paintEvent(QPaintEvent *event){}
+         void  timerEvent(QTimerEvent *event){}
+    };
+
+
+QT事件
+    按钮 -> 事件(emit clicked();) -> 信号(clicked） -> 槽函数（onClicked）
+什么是事件
+    1、用户按下并释放了键盘或鼠标，窗口因缩放而需要重绘，定时器到期而应有的动作等
+如何处理事件
+    已有的控件
+        更关心控件已有的信号，以及需要自定义哪些槽函数连接这些已有的信号。
+        例如：窗口中如果已经有一个button按钮了，这时使用这个button更关心这个button有哪些信号，需要定义什么样的槽函数进行连接。
+    自定义控件
+        更关心覆盖哪些事件处理函数
+        例如：在子类中重写
+            void  keyPressEvent(QKeyEvent *event){}
+            void  keyReleaseEvent(QKeyEvent *event){}
+            void  paintEvent(QPaintEvent *event){}
+            void  timerEvent(QTimerEvent *event){}
+绘图事件
+绘图事件产生的情况：
+    1、窗口从无到有
+    2、窗口由小变大
+    3、刷新窗口：QWidget类的update()/repaint()成员函数被调用
+    
+项目showimages
+    工具：资源编译器
+    添加资源：
+        1、选中项目右键-》文件和类（Qt）-〉Qt Resource File  -》填资源文件名（随便写） -〉下一步下一步完成
+        2、点击资源文件名 -》 Add Prefix  -> 前缀中填一个逻辑路径“/”   -〉Add Files变为可用 -》打开当前项目的图片位置，全选 -〉 保存一下项目即可
+        
+    布局：
+        setWidownsTiles:设置窗口标题
+        sizePolicy：垂直测略 -》expanding 延伸  -- 尽量让该控件占窗口的位置多一点
+    
+    头文件代码：
+    
+        #include <QPainter>   // 画家类
+        #include <QImage>     // 图片类
+        
+        protected:
+            // 绘图事件处理函数
+            void  paintEvent(QPaintEvent *event);
+        private slots:
+            void on_btnPrev_clicked();
+
+            void on_btnNext_clicked();
+
+        private:
+            int m_index;           // 图片索引
+                
+    cpp文件代码：
+        // 绘图事件处理函数
+        void ShowImagesDialog::paintEvent(QPaintEvent*)
+        {
+            // 1. 创建画家类对象
+            QPainter painter(this);
+            // 2. 获取绘图区域
+            QRect rect = ui->frame->frameRect();
+            //    qDebug() << "(" << rect.x() << "," << rect.y() << ")";
+            // 坐标系平移
+            rect.translate(ui->frame->pos());
+            //    qDebug() << "(" << rect.x() << "," << rect.y() << ")";
+            // 3. 构造一个QImage对象
+            QImage image(":/images/" + QString::number(m_index) + ".jpg");  //冒号表示图片来自于资源路径
+            // 4. 使用painter将image绘制出来
+            painter.drawImage(rect,image);
+        }
+        
+        // "上一页"
+        void ShowImagesDialog::on_btnPrev_clicked()
+        {
+            if(--m_index < 0)
+                m_index = 7;
+            update();
+        }
+        // "下一页"
+        void ShowImagesDialog::on_btnNext_clicked()
+        {
+            if(++m_index > 7)
+                m_index = 0;
+            update();
+        }
+
+
+    QString::arg函数，拼接字符串函数，有很多个重载版本。
+    用法：
+      QString i;           // current file's number
+      QString total;       // number of files to process
+      QString fileName;    // current file's name
+      QString status = QString("Processing file %1 of %2: %3")
+                      .arg(i).arg(total).arg(fileName);
+
+

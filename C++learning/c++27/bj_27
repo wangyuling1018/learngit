@@ -1,0 +1,131 @@
+
+列表
+    ●list
+    ●常用函数
+        front() 获取首元素
+        back() 获取尾元素
+        insert()插入元素
+        erase()删除元素
+        push_front() 添加首元素
+        pop_front()删除首元素
+        push_back() 添加尾元素
+        pop_back() 删除尾元素
+        empty()判空
+        clear()清空
+        size() 向量维护元素个数
+        resize() 设置向量元素个数
+    唯一化
+        void unique(void);将连续重复出现的元素唯一化 //删除 连续 且 重复的数据
+    排序(都是全局排序)注意sort是成员函数
+        void sort(void); 通过<比大小
+        template<class LESS>void sort(LESS less); 通过比较器比大小
+    拆分:将参数列表中的部分或全部元素剪切到调用列表中
+        template<class IT>void splice(IT pos, list& lst ); //将lst列表的全部元素剪切到pos位置
+        template<class IT> void splice( IT pos, list& lst, IT del); //将lst列表的del位置元素剪切到pos位置 //剪一个元素
+        template<class IT> void splice( IT pos, list& lst, IT begin, IT end); //将lst列表的[begin,end)之间元素剪切到pos位置 //剪部分[begin,end)
+笔记：
+    线型容器：
+         向量：尾端高效增删     push_back/pop_back
+              可以使用下标 -- 随机迭代器（除了支持++和--，也支持+n和-n）
+         双端队列：首尾两端都可以实现高效增删     push_front/pop_front       push_back/pop_back
+                 可以使用下标   -- 随机迭代器（除了支持++和--，也支持+n和-n）
+         列表：  任意位置都可以实现高效增删     push_front/pop_front       push_back/pop_back
+                不可以使用下标  -- 没有随机迭代器（只支持++和--，不支持+n和-n）
+
+适配器容器
+    栈
+    队列
+    优先队列
+
+栈
+    ●定义形式
+        stack <元素类型，[底层容器类型]>堆栈对象(构造实参表)
+    ●底层容器
+        vector / deque(默认) / list/自己实现的容器作为栈的底层容器  //底层容器：只有一端进行增删，另一端堵上，就可以实现栈的功能
+    ●成员函数
+        push ---> push_back //push内部调用了底层容器的push_back
+        pop ----> pop_back //pop内部调用了底层容器的pop_back
+        top ----> back     //top内部调用了底层容器的back
+        size----> size     //size内部调用了底层容器的size
+        empty---> empty    //empty内部调用了底层容器的empty
+    ●栈的底层实现
+        template<class T,class Sequence=deque<T> >class stack{
+        public:
+            void push(const T& data){ c.push_back(data); }
+            void pop(){ c.pop_back(); }
+            ......
+        private:
+            Sequence c;
+        };
+    ●实例化
+        stack<int> s; 或 stack<int,vector<int> > s; 或 stack<int,list<int> > s;
+
+
+队列
+    ●定义形式
+        queue <元素类型[底层容器类型]>队列对象
+    ●底层容器
+        deque(默认) / list //因为deque、list能在首尾两端进行增删
+        不能使用vector      //因为vector不能在首端进行增删
+    ●成员函数
+        push--->push_back
+        pop---->pop_front
+        back--->back
+        front-->front
+        size--->size
+        empty--->empty
+    队列的底层实现
+        template<class T,class Sequence=deque<T> >class queue{
+        public:
+            void push(const T& data){ c.push_back(data); }
+            void pop(){ c.pop_front(); }
+            ......
+        private:
+            Sequence c;
+        };
+    实例化
+        queue<int> q; 或 queue<int,deque<int> > q; 或 queue<int,list<int> > q;
+
+优先队列
+    定义形式:
+        priority_queue<元素类型,[底层容器类型],[比较器类型]>优先队列对象
+    底层容器:
+        vector(默认)/deque
+        (必须支持随机迭代，不能使用list) //因为与排序方式有关系，list不支持随机迭代器，排序的时候需要用到随机迭代器
+        //除了向量（vector）和双端队列（deque）以及优先队列（priority_queue）支持随机迭代器以外，其余容器只支持顺序迭代器。
+    注意事项:
+        优者先出，默认以大者为优也可以通过比较器定制(比较器必须是类)，
+        如果没有“比较器”默认内部使用<运算符。 //默认是升序
+        并不是出队时挑，而且进队列时就保证有序
+        //数据从队列的尾端进入后先排序，排完后，大的在尾端，从尾端出
+    成员函数:
+        push--->push_back
+        pop--->pop_back
+        top--->front
+        empty--->empty
+        size---->size
+    队列的底层实现:
+        template<class T,class Sequence=deque<T> >class priority_queue{
+        public:
+            void push(const T& data){ c.push_back(data); }
+            void pop(){ c.pop_back(); }
+            ......
+        private:
+            Sequence c;
+        };
+    实例化:
+        priority_queue<int> q; 或 priority_queue<int,deque<int> > q; 或 priority_queue<int,vector<int> > q;
+
+笔记：
+     适配器容器：
+     栈： 后进先出
+        底层容器缺省值为deque，也可以使用vector/list/自定义容器
+
+     队列：先进先出
+        底层容器缺省值为deque，也可以使用list
+        但是不能使用vector，vector没有提供pop_front函数
+        
+     优先队列:  优者先出 (默认大者为优)
+                底层容器缺省值为vector, 也可以使用deque
+                但是不能使用list    ---- 没有随机迭代器（排序时使用）
+                比较器类型缺省为less<T>，大者为优。也可以使用greater<T>，小者为优

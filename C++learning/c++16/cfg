@@ -1,0 +1,15 @@
+main出错前的几百行代码
+A() is invoked.         D
+hum出错前的几百行代码
+A() is invoked         c 
+bar出错前的几百行代码
+A() is invoked         b
+foo出错前的几百行代码
+A() is invoked.       A
+~A() is invoked      ~a
+~A() is invoked      ~b
+hum中捕获异常信息：-1
+hum出错后的几百行代码
+~A() is invoked.      ~c
+main出错后的几百行代码
+~A() is invoked.       ~d

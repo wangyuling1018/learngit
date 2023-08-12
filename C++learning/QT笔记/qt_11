@@ -1,0 +1,120 @@
+
+Model/View模型
+    目的：实现图形界面的时候，将数据和界面显示控件分开，方便数据的处理，降低数据和控件的耦合。
+    view：是窗口中用来呈现数据的控件
+    model：
+        用来和数据打交道的，用于原始数据和控件之间的沟通
+        model数据模型都是基于QAbstractItemModel类，数据无需存储在数据模型里，数据可以是其他类，文件、数据库或任何数据源。
+        数据模型中存储数据的基本单元都是项（item），每个项有一个行号、一个列号、还有一个父项。列表和表格模式下，所有的项都有一个相同的顶层项。
+        数据模型的存取的每个数据都有一个模型索引（model index）
+        视图组件和代理都是通过模型索引来获取数据。
+        QModelIndex表示模型索引的类。
+    代理：数据在界面上用控件去显示的方式，呈现数据的方式（列表显示、下拉显示、单选显示、多选显示等）
+    view、model、代理相互之间通过信号和槽连接。
+    一个模型（QStandardItemModel）可以和多个view（QListView、QTableView）绑定，多个模型也可以和同一个view关联
+    
+
+    
+Qt模型/视图结构
+    Model/View结构是Qt中用户界面组件显示与编辑数据的一种结构。
+        - View(视图)是显示和编辑数据的界面组件
+        - Model(模型)是视图与原始数据之间的接口
+    GUI应用程序的一个很重要的功能是由用户在界面上编辑和修改数据，典型的如数据库应用程序。在数据库应用程序中，用户在界面上执行各种操作，实际上是修改了界面组件相关的数据库内的数据。
+    将界面组件与所编辑的数据分离开来，又通过数据源的方式连接起来，是处理界面与数据的一种较好的方式。
+    Model/View的基本结构如图:
+        - 数据(Data):实际的数据
+        - 视图(View):屏幕上的界面组件
+        - 模型(Model):与实际数据通信，并为视图组件提供数据接口
+        - 代理(Delegate):可以让用户定制数据的界面和编辑方式
+    模型、视图和代理之间使用信号和槽通信
+        - 源数据发生变化时，模型发射信号通知视图组件
+        - 用户在界面操作数据时，视图发射信号
+        - 编辑数据时，代理发射信号告知模型和视图编辑器目前的状态
+
+模型
+    QAbstractItemModel ->   QAbstractListModelH  -> QStringListModel
+                            QAbstractProxyModel  -> QSortFilterProxyModel
+                            QAbstractTableModelH -> QSqlQueryModelH  ->   QSqlTableModelH  ->  QSqlRelationalTableModel
+                            QStandardltemModel
+                            QFileSystemModel
+        
+
+    抽象类不能直接使用，需要子类继承来实现一些纯虚函数。Qt提供了一些模型类用于项数据处理，常见的几个类如下表所示:
+        QStringListModel            - 用于处理字符串列表数据的数据模型类
+        QStandardItemModel          - 标准的基于项数据的数据模型类，每个项数据可以是任何数据类型。    //常用
+        QFileSystemModel            - 计算机上文件系统的数据模型类。                            //用的比较少
+        QSortFilterProxyModel       - 与其它数据模型结合，提供排序和过滤功能的数据模型类
+        QSqIQueryModel              - 用于数据库SQL查询结果的数据模型类
+        QSqlTableModel              - 用于数据库的一个数据表的数据模型类
+        QSqlRelationalTableModel    - 用于关系型数据表的数据模型类
+
+视图
+    视图组件(View)就是现实数据模型的数据的界面组件，Qt提供的视图组件如下:
+        QListView   - 用于显示单列的列表数据，适用于一维数据的操作
+        QTreeView   - 用于显示树状结构数据，适用于树状结构数据的操作
+        QTableView  - 用于显示表格状数据，适用于二维表格型数据的操作
+        QColumnView - 用多个QListView显示树状层次结构，树状结构的一层用一个QListView显示
+        QHeaderView - 提供行表头或列表头的视图组件，如QTableView的行表头和列表头
+    setModel()函数   - 设置数据模型
+    继承关系
+        QAbstractltemView   ->  QListView   -> QListWidget
+                                QTableView  -> QTableWidget
+                                QTreeView   -> QTreeWidget
+                                QColumnView
+                                QHeaderView
+        其中QListWidget、QTableWidget、QTreeWidget是Convenience Classes（方便类） //用于轻量级的数据处理，数据处理比较少的时候，数据存储在控件（数据模型）中。
+        //如果数据处理（修改、删除、增加等）比较大，用model/view比较适合（QListView、QTableView、QTreeView、QColumnView、QHeaderView）
+        
+代理
+    代理就是在视图组件上为编辑数据提供编辑器。
+    代理负责从数据模型获取相应的数据，然后显示在编辑器里，修改数据后，又将其保存到数据模型中。
+    QAbstractIltemDelegate是所有代理类的基类，作为抽象类，它不能直接使用。它的一个子类QStyledltemDelegate，是Qt的视图组件缺省使用的代理类。
+    对于一些特殊的数据编辑要求，可以从QStyledltemDelegate继承创建自定义代理类
+    继承关系：
+        QAbstractltemDelegate ->  QltemDelegate  ->   QSqlRelationalDelegate
+                                  QStyledltemDelegate
+
+Model/View相关概念
+    数据模型的基本结构
+    模型索引
+        - QModellndex 表示模型索引的类。
+        - 模型索引提供数据存取的一个临时指针，用于通过数据模型提取或修改数据
+    行号和列号
+        - 表格数据模型中的3个数据项A、B、C,获取其模型索引的代码是:
+            QModellndex indexA = model->index(0,0,QModellndex());
+            QModellndex indexB = model->index(1,1,QModellndex());
+            QModellndex indexC = model->index(2,1,QModellndex());
+    父项
+        - 树状数据模型，节点A和节点C的父节点是顶层节点，获取模型索引的代码是:
+            QModellndex indexA = model->index(0,0,QModellndex());
+            QModellndex indexC = model->index(2,1,QModellndex());
+        - 节点B的父节点是节点A，节点B的模型索引由下面的代码生成
+            QModellndex indexB =model->index(1,0,indexA);
+    项的角色(enum Qt::ItemDataRole)
+        - DisplayRole    数据是显示的字符串
+        - DecorationRole 是用于装饰显示的属性
+        - ToolTipRole    定义了鼠标提示信息
+
+QFileSystemModel
+    QFileSystemModel 提供了一个可用于访问本机文件系统的数据模型
+    QFileSystemModel 和视图结合使用，可以显示本机上的文件系统
+    常用函数
+        QString rootPath() const
+        bool isDir(const QModellndex &index) const
+        QString filePath(const QModellndex &index) const
+        QString fileName(const QModellndex &index) const
+        QString type(const QModellndex &index) const
+        qint64 size(const QModellndex &index) const
+        ....
+    QFileSystemModel完成如图所示界面和功能
+
+QStringListModel
+    用于处理字符串列表的数据模型，它可以作为 QListView的数据模型，在界面上显示和编辑字符串列表。
+    常用函数
+        - void setStringList(const QStringList &strings)
+        - bool insertRows(int row, int count,const QModellndex &parent = QModellndex())
+        - bool removeRows(int row, int count,const QModellndex &parent = QModellndex())
+        - bool setData(const QModellndex &index,const QVariant &value, int role = Qt::EditRole)
+        
+    QStringListModel完成如图所示界面和功能
+

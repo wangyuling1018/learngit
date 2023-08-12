@@ -1,0 +1,189 @@
+下午 :
+    高级指针
+
+今日内容:
+预处理指令 -
+    条件编译指令
+
+if分支 :
+    if ... else if ... else if ... else ...
+使用场景:
+    编辑一套代码可以适应不同的硬件平台
+    例如Linux内核
+    运行X86, ARM, PowerPC, mips, ...
+
+cpu_init(void){
+    #if ARCH==X86
+        X86 CPU初始化代码
+    #elif ARCH=arm
+        arm CPU初始化代码
+    ...
+    #endif
+}
+    想要生成适应于arm平台的代码 ARCH 架构
+    gcc -DARCH=arm xxx.c ...
+
+一.大型程序开发
+1.头文件和头文件卫士
+    头文件之间是可以互相包含的
+
+#include <common.h> - 将头文件的内容拷贝过来
+
+存在:大量的.c文件, 大量的.h文件
+
+mkdir 02include
+vim a.h
+vim b.h
+vim main.c
+
+redefinition - 重定义
+使用头文件卫士
+
+mkdir 03include
+vim a.h
+vim b.h
+vim main.c
+
+main.c
+#include <stdio.h>
+//a.h
+#ifndef _A_H //头文件卫士
+#define _A_H //执行了
+
+int a = 520;//会编译这句话到可执行程序
+
+#endif
+
+//b.h
+#ifndef _B_H
+#define _B_H
+
+//a.h
+#ifndef _A_H //问题:当前的_A_H宏在之前是否被定义了 - yes - 之前被定义
+             //如果宏_A_H之前被定义的话, #ifndef条件是否成立 - 不成立 - #endif之前的代码不编译
+#define _A_H//不执行
+
+int a = 520;//不执行
+
+#endif
+
+#endif
+
+int main(void){
+    printf("a = %d\n", a);
+    return 0;
+}
+
+a.h
+#ifndef _A_H //头文件卫士
+#define _A_H
+
+int a = 520;
+
+#endif
+
+b.h
+#ifndef _B_H
+#define _B_H
+
+#include "a.h"
+
+#endif
+
+2.大型程序文件分类
+根据产品不同的模块进行划分
+
+dog.h cat.h strcmp.h add.h sub.h ...
+dog.c cat.c strcmp.c add.c sub.c ...
+main.c - 包含main函数 - 调用
+    所有文件中 - 只有一个main函数
+    先从main函数开始执行
+mkdir 04exec
+vim cal.h   //calculator
+vim cal.c
+vim arr.h  //数组输出
+vim arr.c
+vim main.c
+
+.c和.h是否需要访问同一个文件夹里面呢 - 可以的
+
+3.程序编译的优化 - Makefile
+Makefile - 本质上就是一个文本文件, 只是该文件中存储了编译的规则
+gcc main.c cal.c arr.c -o main
+终端  - make 命令 - 执行Makefile中编译的规则 - 自动化生成目标程序
+
+问题 - 如何将编译规则 - 放到Makefile中
+目标:依赖
+(TAB)命令
+
+目标 - 要得到的目标文件
+依赖 - 依赖文件, 目标依赖哪些文件 - 可以有多个
+命令 - 由依赖文件生成目标的命令
+
+举例:
+main:main.c cal.c arr.c
+    gcc main.c cal.c arr.c -o main
+
+你的目标是什么 - 目标由什么文件得到 - 目标如何由对应文件得到
+    gcc -c main.c -o main.o
+    gcc -c cal.c -o cal.o
+    gcc -c arr.c -o arr.o
+    gcc main.o cal.o arr.o -o main
+
+执行make命令, 如何检查呢
+1.检查 - 最终目标是否存在
+    存在 - 是否为最新生成的 - 是 - 不再生成新的最终目标
+        如果他的依赖文件发生了改变 - 重新生成 - 否则 - 不再生成新的最终目标
+    不存在 -
+2.检查依赖文件
+
+伪目标 - 假的目标 - 一个目标没有依赖文件, 只有执行命令
+最常用: clean
+执行方式:make clean
+方式:
+clean:
+(tab)命令
+结果:
+    执行make clean, 执行clean对应的命令
+
+
+Linux内核:
+    Makefile
+    Kconfig
+        - 标配
+
+
+二.结构体 - struct
+    int a =100;//一次性分配4字节内存空间
+    int arr[4] = {0};//一次性分配大量内存 元素类型一致
+        //当做 - 其中有4个成员 - 每个成员为int类型
+        //arr是数组的数据类型, 类型名称: int [4]
+        数组元素 - 数据类型 - 天然确定的
+        数组元素 - 名称 - 数组名[下标]
+            arr[1]
+    分配一段内存描述学生的信息
+        年龄 学号 分数 姓名
+    信息    数据类型
+    年龄    unsigned char
+    学号    unsigned int
+    分数    double
+    姓名    字符串
+解决方法 - 结构体
+1.结构体就是分配内存的第三种方式
+2.结构体是开发人员自定义的数据类型
+    本质上和int, char, double是一样的
+    也可以去定义变量, 结构体类型变量
+
+特点 -
+1. 是由[若干成员]组成的自定义数据类型
+    若干 - 可以自行设置 -
+        成员数量 - 自定义
+        成员类型 - 自定义
+
+定义变量 - 如何使用
+三种方式
+1.
+
+cpp - c plus plus - 带类的C
+核心 - 类
+    更加强大的结构体

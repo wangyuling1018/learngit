@@ -1,0 +1,49 @@
+
+应用场景：
+    界面上某一个功能需要去做大量的计算或数据接收等，界面就会进入一种冻结的状态，用户感觉没有响应了，用户点击这个功能的结果不出来，点击别的又点不了，像死机了
+    把复杂的耗时操作放在独立的线程中去执行，不影响用户对界面其他功能的使用。
+    
+Qt中创建线程的方式
+1.继承QThread
+2.QObject::moveToThread将工作对象移动到线程
+    void QObject::moveToThread(QThread *targetThread)
+
+使用moveToThread必须满足的条件：
+1) 工作对象类必须继承自QObject或其子类
+2) 工作对象不能有父对象(parent)
+3) UI控件不能移动
+
+// 工作对象类
+class Work : public QObject{
+      Q_OBJECT
+public:
+      ...
+public slots:
+      void doWork();  // 相当于线程执行的功能
+      ...
+signals:
+      ...
+};
+
+class Widget:public QWidget{
+       Q_OBEJCT
+public:
+       ...
+       Work* work;
+       QThread* thead;
+};
+
+Widget:Widget(...){
+     ui->....;
+ 
+     thread = new ...;
+     work = new ...;
+  
+     work->moveToThread(thread);  // 移动到线程
+     connect(this, SIGNAL(...), work, SLOT(doWork()));
+     thread->start();
+}
+
+
+    
+    

@@ -1,0 +1,115 @@
+关联容器
+    映射
+    多重映射
+    集合
+    多重集合
+
+映射
+    定义形式
+        map<键类型，值类型> 映射对象;
+    底层实现
+        template<typename Key,typename T,
+                typename Compare = less<Key>, //缺省采用递增排序
+                typename Alloc = alloc>
+        class map{
+        };
+    头文件
+        map
+    ●逻辑模型
+        ➢键值对
+            template<typename Key,typename T>
+            struct pair{
+                Key first;
+                T second;
+                pair(): first(Key()),second(T()){}
+                pair(const Key& a, const T& b): first(a),second(b){}
+            };
+    ●逻辑模型
+        ➢主要用于信息检索，性能可以达到对数级(O(logN)) ，类似二分法
+            不允许有重复数据射 //键不能重复
+    物理模型
+        红黑树(平衡有序二叉树)
+
+    映射的特点
+        >键唯一
+        >键只读    //键不能修改
+        >迭代过程实际上是关于键的中序遍历(L D R),缺省键的升序     //默认按照键的升序排序，键的类型必须支持<(小与号)的比较操作
+        >支持“下标”运算，用键作为下标，得到对应的值的引用，如果所给出的键不存在，增加一个节点，返回其值的引用
+        >检索性能好、构建和修改性能较差，适用于结构稳定，但是需要频繁检索的操作。 //适合检索，不适合增删操作
+        
+    创建map容器
+        创建空的map容器
+            map<string,int> m1;
+        使用初始化列表指定map的初始值
+            map<string,int> m2{{"zhangsan",80},{{{"lisi", 85 },{{{"zhangsan", 77 }}; 使用现有容器或容器的一段元素创建map
+            map<string,int> m3{m2}
+            map<string,int> m4{++m2.begin(),--m2.end()}
+
+    map元素的插入
+        >插入一个pair<Key,T>对象
+            insert(pair<FIRST,SECOND>(键，值))
+        >使用make_pair<Key,T>()函数模板插入一个对
+            insert(make_pair(键，值))
+        > 初始化列表作为参数
+            insert({键, 值},{键,值},{键, 值}, ...)
+    访问map元素
+        使用迭代器访问元素
+            begin()/end()、cbegin()/cend()、rbegin()/rend()、 crbegin()/crend()
+        使用键获取值
+            [key]:key存在时返回关联值的引用，不存在时添加新元素
+            at(key):key存在时返回关联的对象，不存在时抛出异常out_of_range
+    map元素的删除
+        earse(key)
+            移除键和参数匹配的元素，返回所移除元素的个数。
+        earse(iterator)
+            移除参数迭代器指向的元素，返回迭代器指向被删除元素的下一个位置。参数必须是容器中的有效迭代器，不能是终止迭代器。
+            如果迭代器参数指向的是容器的最后一个元素，则返回终止迭代器。
+    map元素的查找
+        > find(key)
+            返回一个元素的迭代器，这个元素的键和参数匹配
+            如果没有和参数匹配的元素，find()函数会返回容器的终止迭代器。因此在使用这个迭代器之前，必须先对它进行检查。
+
+
+多重映射
+    //与映射的用法几乎相同，只是键不唯一
+    允许键重复的映射，表示一对多的逻辑关系，不支持下标运算符。
+    定义形式:multimap<键类型，值类型>映射对象;
+    头文件:map
+
+集合
+    //集合底层使用红黑树，具有关联容器的基本特征：有序的（升序），键唯一
+    没有值只有键的映射
+    与向量等基本容器相比最大优势就是排重。
+    定义形式:set<T>集合对象;
+    头文件:set
+
+多重集合
+    //多重集合底层使用红黑树，具有关联容器的基本特征：有序的（升序）
+    ●没有值只有键的多重映射。
+    ●定义形式: multiset<T> 多重集合对象
+    ●头文件: set
+
+
+无序容器
+//无序映射检索性能略低于映射，添加删除性能优于映射
+◆哈希
+    ●定义
+        ➢哈希是用给定范围的基本类型的数据项，或者 类似strinq这样的对象，生成整数值的过程
+        ➢哈希产生的值叫做哈希值或者哈希码，通常用在容器中，用来确定表中对象的位置
+        ➢理想情况下，每个对象产生的哈希值是唯一-的， 但实际是可能产生重复的。重复的哈希值称为哈希碰撞。
+    哈希函数
+        hash<Key>
+            template<typename Key> struct hash{};
+        成员函数:
+            size_t operator()(Key k){}
+
+无序映射
+    定义形式
+        unordered_map<键的类型,值的类型[,哈希器类型][,判等器类型]> 对象;
+    底层实现
+        template <class Key,
+        class T,
+        class HashFcn =hash<Key>,
+        class EqualKey =equal_to(Key),
+        classAlloc=alloc()
+        class unordered_map{
